@@ -1,25 +1,164 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   DESIGN TOKENS - Semantic Color System
+   ============================================================================ */
+
 :root {
+  /* Core Colors */
   --background: #ffffff;
   --foreground: #171717;
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Surface Colors - for backgrounds */
+  --surface: #ffffff;
+  --surface-alt: #f9fafb;
+  /* gray-50 */
+  --surface-elevated: #ffffff;
+
+  /* Border Colors */
+  --border: #e5e7eb;
+  /* gray-200 */
+  --border-muted: #f3f4f6;
+  /* gray-100 */
+
+  /* Text Colors */
+  --text-primary: #111827;
+  /* gray-900 */
+  --text-secondary: #6b7280;
+  /* gray-500 */
+  --text-muted: #9ca3af;
+  /* gray-400 */
+
+  /* Accent Colors */
+  --accent: #3b82f6;
+  /* blue-500 */
+  --accent-hover: #2563eb;
+  /* blue-600 */
+  --accent-muted: #dbeafe;
+  /* blue-100 */
+
+  /* Status Colors */
+  --success: #22c55e;
+  /* green-500 */
+  --warning: #f59e0b;
+  /* amber-500 */
+  --danger: #ef4444;
+  /* red-500 */
+  --danger-hover: #dc2626;
+  /* red-600 */
+  --danger-muted: #fee2e2;
+  /* red-100 */
+
+  /* Interactive States */
+  --hover: #f3f4f6;
+  /* gray-100 */
+  --active: #e5e7eb;
+  /* gray-200 */
+  --focus-ring: #3b82f6;
+  /* blue-500 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Core Colors - Dark */
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* Surface Colors - Dark */
+    --surface: #111827;
+    /* gray-900 */
+    --surface-alt: #1f2937;
+    /* gray-800 */
+    --surface-elevated: #1f2937;
+
+    /* Border Colors - Dark */
+    --border: #374151;
+    /* gray-700 */
+    --border-muted: #1f2937;
+    /* gray-800 */
+
+    /* Text Colors - Dark */
+    --text-primary: #f9fafb;
+    /* gray-50 */
+    --text-secondary: #9ca3af;
+    /* gray-400 */
+    --text-muted: #6b7280;
+    /* gray-500 */
+
+    /* Accent Colors - Dark (slightly brighter for contrast) */
+    --accent: #60a5fa;
+    /* blue-400 */
+    --accent-hover: #3b82f6;
+    /* blue-500 */
+    --accent-muted: #1e3a5f;
+    /* blue-900/custom */
+
+    /* Status Colors - Dark */
+    --success: #4ade80;
+    /* green-400 */
+    --warning: #fbbf24;
+    /* amber-400 */
+    --danger: #f87171;
+    /* red-400 */
+    --danger-hover: #ef4444;
+    /* red-500 */
+    --danger-muted: #450a0a;
+    /* red-950 */
+
+    /* Interactive States - Dark */
+    --hover: #1f2937;
+    /* gray-800 */
+    --active: #374151;
+    /* gray-700 */
   }
 }
 
-/* Base styles */
+/* Register custom colors with Tailwind @theme */
+@theme inline {
+  /* Core theme tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Surface tokens */
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-elevated: var(--surface-elevated);
+
+  /* Border tokens */
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+
+  /* Text tokens */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Accent tokens */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+
+  /* Status tokens */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-muted: var(--danger-muted);
+
+  /* Interactive tokens */
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-focus-ring: var(--focus-ring);
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
 html,
 body {
   height: 100%;
@@ -38,7 +177,71 @@ main {
   height: 100%;
 }
 
-/* Custom scrollbar for dark mode */
+/* ============================================================================
+   COMPONENT UTILITIES
+   ============================================================================ */
+
+@layer components {
+
+  /* Primary Button - Main call to action */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover active:bg-accent-hover rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+  }
+
+  /* Secondary Button - Less prominent actions */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-text-primary bg-surface hover:bg-hover active:bg-active border border-border hover:border-border rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-focus-ring focus:ring-offset-2;
+  }
+
+  /* Ghost Button - Minimal visual impact */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-text-secondary hover:bg-hover active:bg-active rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-focus-ring;
+  }
+
+  /* Danger Button - Destructive actions */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-danger hover:text-white bg-transparent hover:bg-danger active:bg-danger-hover border border-danger rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2;
+  }
+
+  /* Icon Button - Square buttons for icons */
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-10 h-10 text-text-secondary hover:text-text-primary hover:bg-hover active:bg-active rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-focus-ring;
+  }
+
+  /* Card Container */
+  .card {
+    @apply bg-surface border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Card - Elevated */
+  .card-elevated {
+    @apply bg-surface-elevated border border-border rounded-xl shadow-lg;
+  }
+
+  /* Input Field */
+  .input {
+    @apply w-full px-3 py-2 text-sm text-text-primary bg-surface border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent placeholder:text-text-muted;
+  }
+
+  /* Select Dropdown */
+  .select {
+    @apply px-3 py-2 text-sm text-text-primary bg-surface border border-border rounded-lg shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent;
+  }
+
+  /* Badge/Tag */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium bg-surface-alt text-text-secondary rounded-full;
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium bg-accent-muted text-accent rounded-full;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar {
     width: 8px;
@@ -46,15 +249,15 @@ main {
   }
 
   ::-webkit-scrollbar-track {
-    background: #1a1a1a;
+    background: var(--surface);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #404040;
+    background: var(--border);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #505050;
+    background: var(--text-muted);
   }
 }

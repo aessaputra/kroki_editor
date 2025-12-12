@@ -3,6 +3,30 @@
  */
 
 /**
+ * Saved diagram in IndexedDB storage
+ */
+export interface SavedDiagram {
+  /** Unique identifier for the diagram */
+  id: string;
+  /** User-provided or auto-generated name */
+  name: string;
+  /** Diagram source code */
+  source: string;
+  /** Type of diagram (plantuml, mermaid, etc) */
+  diagramType: DiagramType;
+  /** Output format (svg, png, etc) */
+  outputFormat: OutputFormat;
+  /** Diagram-specific options */
+  options: Record<string, string | number | boolean>;
+  /** Timestamp when diagram was saved */
+  timestamp: number;
+  /** Optional thumbnail preview (base64 encoded image) */
+  thumbnail?: string;
+  /** Whether diagram is pinned (protected from auto-cleanup) */
+  isPinned?: boolean;
+}
+
+/**
  * Supported diagram types by Kroki (complete list)
  */
 export type DiagramType =

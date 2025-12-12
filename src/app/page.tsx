@@ -95,21 +95,11 @@ export default function HomePage() {
         <div className="flex items-center justify-between gap-2">
           {/* Logo / Title - compact on mobile */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-4 h-4 sm:w-5 sm:h-5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-                />
-              </svg>
-            </div>
+            <img
+              src="/assets/logo.svg"
+              alt="Kroki Diagram Editor"
+              className="w-7 h-7 sm:w-8 sm:h-8"
+            />
             <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">
               <span className="sm:hidden">Kroki</span>
               <span className="hidden sm:inline">Kroki Diagram Editor</span>
@@ -146,13 +136,15 @@ export default function HomePage() {
       {/* Floating Action Button for History - Mobile only (visible on < md) */}
       <button
         onClick={() => setHistoryOpen(true)}
-        className="md:hidden fixed bottom-20 right-4 z-40 w-14 h-14 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
+        className="md:hidden fixed bottom-20 right-4 z-40 w-14 h-14 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 rounded-full shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 flex items-center justify-center"
         aria-label="Open history"
         title="History"
       >
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <img
+          src="/assets/history.svg"
+          alt="History"
+          className="w-6 h-6 dark:invert opacity-70"
+        />
       </button>
 
       {/* Main Content - Split Pane */}

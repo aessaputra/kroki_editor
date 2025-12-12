@@ -263,8 +263,8 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                 <li
                                     key={diagram.id}
                                     className={`p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm transition-all hover:shadow-md ${diagram.isPinned
-                                            ? 'border-yellow-300 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-900/10'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                                        ? 'border-yellow-300 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-900/10'
+                                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
                                         }`}
                                 >
                                     {/* Header row */}

@@ -65,7 +65,7 @@ export default function HomePage() {
           </div>
 
           {/* Format and Diagram Type Selectors */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <FormatSelector
               value={outputFormat}
               onChange={setOutputFormat}
@@ -80,13 +80,13 @@ export default function HomePage() {
       </header>
 
       {/* Main Content - Split Pane */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-auto lg:overflow-hidden">
         <SplitPane
           leftTitle={`${diagramType.charAt(0).toUpperCase() + diagramType.slice(1)} Code`}
           rightTitle="Diagram Preview"
           left={
-            <div className="h-full flex flex-col">
-              <div className="flex-1 min-h-0">
+            <div className="h-full flex flex-col overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <DiagramEditor
                   value={source}
                   onChange={setSource}
@@ -94,11 +94,13 @@ export default function HomePage() {
                   theme="vs-dark"
                 />
               </div>
-              <DiagramOptions
-                diagramType={diagramType}
-                options={options}
-                onChange={setOptions}
-              />
+              <div className="flex-none">
+                <DiagramOptions
+                  diagramType={diagramType}
+                  options={options}
+                  onChange={setOptions}
+                />
+              </div>
             </div>
           }
           right={
@@ -113,9 +115,9 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="flex-none px-4 py-2 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>
+      <footer className="flex-none px-3 sm:px-4 py-2 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-xs text-gray-500 dark:text-gray-400">
+          <span className="hidden sm:inline">
             Powered by{' '}
             <a
               href="https://kroki.io"
@@ -126,7 +128,7 @@ export default function HomePage() {
               Kroki
             </a>
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <a
               href="https://kroki.io/assets/kroki_cheatsheet_20210515_v1.1_EN.pdf"
               target="_blank"
@@ -138,7 +140,7 @@ export default function HomePage() {
               </svg>
               Cheat Sheet
             </a>
-            <span>
+            <span className="text-xs">
               {isUpdating ? '⏳ Rendering...' : '✅ Ready'}
             </span>
           </div>

@@ -27,23 +27,24 @@ export function DiagramTypeSelector({
     onChange,
 }: DiagramTypeSelectorProps) {
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
             <label
                 htmlFor="diagram-type"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
-                Diagram Type:
+                <span className="hidden sm:inline">Diagram Type:</span>
+                <span className="sm:hidden">Type:</span>
             </label>
             <select
                 id="diagram-type"
                 value={value}
                 onChange={(e) => onChange(e.target.value as DiagramType)}
                 className="
-          px-4 py-2 
+          px-2 sm:px-4 py-1 sm:py-2 
           bg-white dark:bg-gray-800 
           border border-gray-300 dark:border-gray-600 
           rounded-lg 
-          text-sm font-medium text-gray-900 dark:text-gray-100
+          text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
           cursor-pointer
           transition-colors

@@ -34,18 +34,18 @@ export function SplitPane({
     return (
         <div className="flex flex-col lg:flex-row w-full h-full gap-0 lg:gap-1">
             {/* Left Panel - Editor */}
-            <div className="flex flex-col w-full lg:w-1/2 h-1/2 lg:h-full min-h-[300px]">
+            <div className="flex flex-col w-full lg:w-1/2 flex-1 lg:flex-none lg:h-full min-h-[200px] lg:min-h-[300px]">
                 {/* Panel Header */}
                 <div className="
           flex items-center justify-between
-          px-4 py-2
+          px-3 sm:px-4 py-2
           bg-gray-100 dark:bg-gray-800
           border-b border-gray-200 dark:border-gray-700
         ">
-                    <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <h2 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {leftTitle}
                     </h2>
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-500 hidden sm:inline">
                         Ctrl+S to format
                     </span>
                 </div>
@@ -56,22 +56,22 @@ export function SplitPane({
                 </div>
             </div>
 
-            {/* Divider - visible on desktop */}
-            <div className="hidden lg:block w-1 bg-gray-200 dark:bg-gray-700 cursor-col-resize hover:bg-blue-500 transition-colors" />
+            {/* Divider - horizontal on mobile, vertical on desktop */}
+            <div className="w-full lg:w-1 h-1 lg:h-auto bg-gray-300 dark:bg-gray-600 lg:cursor-col-resize lg:hover:bg-blue-500 transition-colors flex-none" />
 
             {/* Right Panel - Preview */}
-            <div className="flex flex-col w-full lg:w-1/2 h-1/2 lg:h-full min-h-[300px]">
+            <div className="flex flex-col w-full lg:w-1/2 flex-1 lg:flex-none lg:h-full min-h-[200px] lg:min-h-[300px]">
                 {/* Panel Header */}
                 <div className="
           flex items-center justify-between
-          px-4 py-2
+          px-3 sm:px-4 py-2
           bg-gray-100 dark:bg-gray-800
           border-b border-gray-200 dark:border-gray-700
         ">
-                    <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <h2 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {rightTitle}
                     </h2>
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-500 hidden sm:inline">
                         Live preview
                     </span>
                 </div>

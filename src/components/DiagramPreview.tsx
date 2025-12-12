@@ -136,11 +136,11 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
     return (
         <div className="w-full h-full flex flex-col bg-white dark:bg-gray-900">
             {/* Toolbar */}
-            <div className="flex-none flex items-center justify-between gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex-none flex items-center justify-between gap-2 px-2 sm:px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 {/* URL Display */}
                 <div className="flex-1 flex items-center gap-2 min-w-0">
                     <svg
-                        className="w-4 h-4 flex-none text-gray-400"
+                        className="w-4 h-4 flex-none text-gray-400 hidden sm:block"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -166,7 +166,7 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
                     {/* Copy URL Button */}
                     <button
                         onClick={handleCopyUrl}
-                        className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-1.5"
+                        className="px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-1.5"
                         title="Copy URL"
                     >
                         {showUrlCopied ? (
@@ -174,14 +174,14 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>Copied!</span>
+                                <span className="hidden sm:inline">Copied!</span>
                             </>
                         ) : (
                             <>
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
-                                <span>Copy</span>
+                                <span className="hidden sm:inline">Copy</span>
                             </>
                         )}
                     </button>
@@ -189,13 +189,13 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
                     {/* Download Button */}
                     <button
                         onClick={handleDownload}
-                        className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded transition-colors flex items-center gap-1.5"
-                        title="Download SVG"
+                        className="px-2 sm:px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded transition-colors flex items-center gap-1.5"
+                        title="Download"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span>Download</span>
+                        <span className="hidden sm:inline">Download</span>
                     </button>
                 </div>
             </div>

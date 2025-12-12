@@ -36,6 +36,90 @@ export type DiagramType =
   | 'wireviz';
 
 /**
+ * Supported output formats by Kroki
+ * @see https://docs.kroki.io/kroki/setup/usage/
+ */
+export type OutputFormat = 'svg' | 'png' | 'jpeg' | 'pdf' | 'txt' | 'base64';
+
+/**
+ * Human-readable labels for output formats
+ */
+export const OUTPUT_FORMAT_LABELS: Record<OutputFormat, string> = {
+  svg: 'SVG',
+  png: 'PNG',
+  jpeg: 'JPEG',
+  pdf: 'PDF',
+  txt: 'Text (ASCII)',
+  base64: 'Base64',
+};
+
+/**
+ * Format support matrix based on Kroki documentation
+ * Maps each diagram type to its supported output formats
+ * @see diagram-type.md for the complete support matrix
+ */
+export const FORMAT_SUPPORT: Record<DiagramType, OutputFormat[]> = {
+  blockdiag: ['png', 'svg', 'pdf'],
+  bpmn: ['svg'],
+  bytefield: ['svg'],
+  seqdiag: ['png', 'svg', 'pdf'],
+  actdiag: ['png', 'svg', 'pdf'],
+  nwdiag: ['png', 'svg', 'pdf'],
+  packetdiag: ['png', 'svg', 'pdf'],
+  rackdiag: ['png', 'svg', 'pdf'],
+  c4plantuml: ['png', 'svg', 'pdf', 'txt', 'base64'],
+  d2: ['svg'],
+  dbml: ['svg'],
+  ditaa: ['png', 'svg'],
+  erd: ['png', 'svg', 'jpeg', 'pdf'],
+  excalidraw: ['svg'],
+  graphviz: ['png', 'svg', 'jpeg', 'pdf'],
+  mermaid: ['png', 'svg'],
+  nomnoml: ['svg'],
+  pikchr: ['svg'],
+  plantuml: ['png', 'svg', 'pdf', 'txt', 'base64'],
+  structurizr: ['png', 'svg', 'pdf', 'txt', 'base64'],
+  svgbob: ['svg'],
+  symbolator: ['svg'],
+  tikz: ['png', 'svg', 'jpeg', 'pdf'],
+  umlet: ['png', 'svg', 'jpeg'],
+  vega: ['png', 'svg', 'pdf'],
+  vegalite: ['png', 'svg', 'pdf'],
+  wavedrom: ['svg'],
+  wireviz: ['png', 'svg'],
+};
+
+/**
+ * Get supported output formats for a diagram type
+ * @param diagramType - The diagram type to check
+ * @returns Array of supported output formats, defaults to ['svg'] if unknown
+ */
+export function getSupportedFormats(diagramType: DiagramType): OutputFormat[] {
+  return FORMAT_SUPPORT[diagramType] || ['svg'];
+}
+
+/**
+ * Check if a format is supported for a diagram type
+ * @param diagramType - The diagram type
+ * @param format - The output format to check
+ * @returns true if the format is supported
+ */
+export function isFormatSupported(diagramType: DiagramType, format: OutputFormat): boolean {
+  return getSupportedFormats(diagramType).includes(format);
+}
+
+/**
+ * Get the file extension for an output format
+ * @param format - The output format
+ * @returns The file extension (without dot)
+ */
+export function getFileExtension(format: OutputFormat): string {
+  // base64 and txt both save as .txt files
+  if (format === 'base64') return 'txt';
+  return format;
+}
+
+/**
  * Diagram type metadata for UI display
  */
 export interface DiagramTypeInfo {

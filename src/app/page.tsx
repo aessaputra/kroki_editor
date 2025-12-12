@@ -13,6 +13,7 @@ import {
   DiagramPreview,
   DiagramTypeSelector,
   DiagramOptions,
+  FormatSelector,
   SplitPane,
 } from '@/components';
 
@@ -31,6 +32,9 @@ export default function HomePage() {
     isUpdating,
     options,
     setOptions,
+    outputFormat,
+    setOutputFormat,
+    supportedFormats,
   } = useDiagramEditor('plantuml');
 
   return (
@@ -60,11 +64,18 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {/* Diagram Type Selector */}
-          <DiagramTypeSelector
-            value={diagramType}
-            onChange={setDiagramType}
-          />
+          {/* Format and Diagram Type Selectors */}
+          <div className="flex items-center gap-4">
+            <FormatSelector
+              value={outputFormat}
+              onChange={setOutputFormat}
+              supportedFormats={supportedFormats}
+            />
+            <DiagramTypeSelector
+              value={diagramType}
+              onChange={setDiagramType}
+            />
+          </div>
         </div>
       </header>
 
@@ -95,6 +106,7 @@ export default function HomePage() {
               imageUrl={imageUrl}
               isUpdating={isUpdating}
               diagramType={diagramType}
+              outputFormat={outputFormat}
             />
           }
         />
@@ -114,9 +126,22 @@ export default function HomePage() {
               Kroki
             </a>
           </span>
-          <span>
-            {isUpdating ? '⏳ Rendering...' : '✅ Ready'}
-          </span>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://kroki.io/assets/kroki_cheatsheet_20210515_v1.1_EN.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Cheat Sheet
+            </a>
+            <span>
+              {isUpdating ? '⏳ Rendering...' : '✅ Ready'}
+            </span>
+          </div>
         </div>
       </footer>
     </main>

@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { OutputFormat, getFileExtension } from '@/types';
 
 /**
  * Props for DiagramPreview component
@@ -18,12 +19,14 @@ interface DiagramPreviewProps {
     isUpdating?: boolean;
     /** Current diagram type for filename */
     diagramType?: string;
+    /** Current output format for download extension */
+    outputFormat?: OutputFormat;
 }
 
 /**
  * Preview component for rendered diagrams
  */
-export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'diagram' }: DiagramPreviewProps) {
+export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'diagram', outputFormat = 'svg' }: DiagramPreviewProps) {
     const [key, setKey] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +59,7 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
         }
     }, [imageUrl]);
 
-    // Handle download
+    // Handle download with correct file extension
     const handleDownload = useCallback(async () => {
         if (!imageUrl) return;
 
@@ -66,7 +69,9 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${diagramType}-${Date.now()}.svg`;
+            // Use getFileExtension to get correct extension (base64 -> txt)
+            const extension = getFileExtension(outputFormat);
+            a.download = `${diagramType}-${Date.now()}.${extension}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -74,7 +79,7 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
         } catch (err) {
             console.error('Failed to download:', err);
         }
-    }, [imageUrl, diagramType]);
+    }, [imageUrl, diagramType, outputFormat]);
 
     // Empty state - no URL provided
     if (!imageUrl) {

@@ -8,7 +8,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from './useDebounce';
 import { buildKrokiUrl } from '@/lib/kroki';
-import { DiagramType, DEFAULT_TEMPLATES, DIAGRAM_TYPES } from '@/types';
+import { DiagramType, OutputFormat, DEFAULT_TEMPLATES, DIAGRAM_TYPES, getSupportedFormats } from '@/types';
 
 /**
  * Debounce delay for diagram updates (ms)
@@ -37,6 +37,12 @@ export interface UseDiagramEditorReturn {
     options: Record<string, string | number | boolean>;
     /** Update diagram options */
     setOptions: (opts: Record<string, string | number | boolean>) => void;
+    /** Current output format */
+    outputFormat: OutputFormat;
+    /** Update output format */
+    setOutputFormat: (format: OutputFormat) => void;
+    /** Supported formats for current diagram type */
+    supportedFormats: OutputFormat[];
 }
 
 /**
@@ -50,12 +56,16 @@ export function useDiagramEditor(
     const [source, setSource] = useState<string>('');
     const [diagramType, setDiagramType] = useState<DiagramType>(initialDiagramType);
     const [options, setOptions] = useState<Record<string, string | number | boolean>>({});
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
 
     // Debounce source updates (300ms delay to avoid spamming Kroki)
     const debouncedSource = useDebounce(source, DEBOUNCE_DELAY);
 
     // Track if we're in "updating" state (source changed but not yet debounced)
     const isUpdating = source !== debouncedSource;
+
+    // Get supported formats for current diagram type
+    const supportedFormats = useMemo(() => getSupportedFormats(diagramType), [diagramType]);
 
     // Initialize source with default template when diagram type changes
     useEffect(() => {
@@ -65,13 +75,20 @@ export function useDiagramEditor(
         setOptions({});
     }, [diagramType]);
 
-    // Generate Kroki URL from debounced source and options
+    // Reset output format if current format is not supported by new diagram type
+    useEffect(() => {
+        if (!supportedFormats.includes(outputFormat)) {
+            setOutputFormat(supportedFormats[0]);
+        }
+    }, [supportedFormats, outputFormat]);
+
+    // Generate Kroki URL from debounced source, format, and options
     const imageUrl = useMemo(() => {
         if (debouncedSource.trim()) {
-            return buildKrokiUrl(diagramType, debouncedSource, 'svg', options);
+            return buildKrokiUrl(diagramType, debouncedSource, outputFormat, options);
         }
         return '';
-    }, [debouncedSource, diagramType, options]);
+    }, [debouncedSource, diagramType, outputFormat, options]);
 
     // Determine Monaco editor language based on diagram type
     const editorLanguage = useMemo(() => {
@@ -89,5 +106,8 @@ export function useDiagramEditor(
         isUpdating,
         options,
         setOptions,
+        outputFormat,
+        setOutputFormat,
+        supportedFormats,
     };
 }

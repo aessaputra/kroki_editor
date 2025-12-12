@@ -9,7 +9,7 @@
  */
 
 import pako from 'pako';
-import type { DiagramType } from '@/types';
+import type { DiagramType, OutputFormat } from '@/types';
 
 /**
  * Default Kroki server URL
@@ -69,7 +69,7 @@ function uint8ArrayToBase64(bytes: Uint8Array): string {
 export function buildKrokiUrl(
     diagramType: DiagramType,
     source: string,
-    format: 'svg' | 'png' | 'pdf' = 'svg',
+    format: OutputFormat = 'svg',
     options?: Record<string, string | number | boolean>
 ): string {
     if (!source.trim()) {

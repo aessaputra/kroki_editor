@@ -1518,23 +1518,48 @@ end counter;`,
   \\draw[->] (C) -- (A);
 \\end{tikzpicture}`,
 
-  umlet: `<?xml version="1.0" encoding="UTF-8"?>
-<diagram program="umlet" version="14.3">
+  umlet: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagrams>
   <element>
-    <type>com.baselet.element.old.element.Class</type>
+    <id>UMLClass</id>
     <coordinates>
-      <x>100</x>
-      <y>100</y>
-      <w>200</w>
-      <h>100</h>
+      <x>10</x>
+      <y>10</y>
+      <w>120</w>
+      <h>70</h>
     </coordinates>
-    <panel_attributes>Example Class
+    <panel_attributes>MyClass
 --
-+attribute: String
+- attribute1: String
 --
-+method(): void</panel_attributes>
++ operation1()</panel_attributes>
+    <additional_attributes/>
   </element>
-</diagram>`,
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>200</x>
+      <y>10</y>
+      <w>120</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>AnotherClass
+--
++ value: int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>120</x>
+      <y>35</y>
+      <w>80</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;60.0;10.0</additional_attributes>
+  </element>
+</diagrams>`,
 
   vega: `{
   "$schema": "https://vega.github.io/schema/vega/v5.json",

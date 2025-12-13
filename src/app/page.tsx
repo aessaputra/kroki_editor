@@ -241,6 +241,7 @@ export default function HomePage() {
         isOpen={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
         diagramType={diagramType}
+        currentCode={source}
         onGenerate={setSource}
       />
     </main>

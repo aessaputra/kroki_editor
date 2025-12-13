@@ -42,6 +42,9 @@ Keep the logic and structure identical, only fix syntax issues.`;
 function extractCode(response: string): string {
     let code = response.trim();
 
+    // Remove <think> tags and their content (chain-of-thought reasoning)
+    code = code.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
     // Remove markdown code blocks
     const codeBlockRegex = /```(?:\w+)?\n?([\s\S]*?)```/;
     const match = code.match(codeBlockRegex);

@@ -37,6 +37,9 @@ Preserve proper syntax for ${diagramType} diagrams.`;
 function extractCode(response: string, diagramType: string): string {
     let code = response.trim();
 
+    // Remove <think> tags and their content (chain-of-thought reasoning)
+    code = code.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
     // Remove markdown code blocks
     const codeBlockRegex = /```(?:\w+)?\n?([\s\S]*?)```/;
     const match = code.match(codeBlockRegex);

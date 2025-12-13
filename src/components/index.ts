@@ -9,3 +9,5 @@ export { DiagramOptions } from './DiagramOptions';
 export { FormatSelector } from './FormatSelector';
 export { SplitPane } from './SplitPane';
 export { DiagramHistory } from './DiagramHistory';
+export { AIGenerateButton } from './AIGenerateButton';
+export { AIGenerateModal } from './AIGenerateModal';

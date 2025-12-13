@@ -20,6 +20,8 @@ interface SplitPaneProps {
     leftTitle?: string;
     /** Right panel header/title */
     rightTitle?: string;
+    /** Optional action element for left panel header */
+    leftAction?: ReactNode;
 }
 
 /**
@@ -30,6 +32,7 @@ export function SplitPane({
     right,
     leftTitle = 'Editor',
     rightTitle = 'Preview',
+    leftAction,
 }: SplitPaneProps) {
     return (
         <div className="flex flex-col lg:flex-row w-full h-full gap-0 lg:gap-1">
@@ -45,9 +48,12 @@ export function SplitPane({
                     <h2 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {leftTitle}
                     </h2>
-                    <span className="text-xs text-gray-500 dark:text-gray-500 hidden sm:inline">
-                        Ctrl+S to format
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-500 hidden sm:inline">
+                            Ctrl+S to format
+                        </span>
+                        {leftAction}
+                    </div>
                 </div>
 
                 {/* Panel Content */}
@@ -84,3 +90,4 @@ export function SplitPane({
         </div>
     );
 }
+

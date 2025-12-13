@@ -19,7 +19,10 @@ import {
   FormatSelector,
   SplitPane,
   DiagramHistory,
+  AIGenerateButton,
+  AIGenerateModal,
 } from '@/components';
+import { useOwnerAuth } from '@/hooks/useOwnerAuth';
 import type { SavedDiagram } from '@/types';
 
 /**
@@ -28,6 +31,12 @@ import type { SavedDiagram } from '@/types';
 export default function HomePage() {
   // History sidebar state
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  // AI modal state
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+
+  // Owner authentication for AI features
+  const { isOwner } = useOwnerAuth();
 
   // Use the diagram editor hook for all state management
   const {
@@ -133,25 +142,24 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Floating Action Button for History - Mobile only (visible on < md) */}
-      <button
-        onClick={() => setHistoryOpen(true)}
-        className="md:hidden fixed bottom-20 right-4 z-40 w-14 h-14 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 rounded-full shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 flex items-center justify-center"
-        aria-label="Open history"
-        title="History"
-      >
-        <img
-          src="/assets/history.svg"
-          alt="History"
-          className="w-6 h-6 dark:invert opacity-70"
-        />
-      </button>
 
       {/* Main Content - Split Pane */}
       <div className="flex-1 min-h-0 overflow-auto lg:overflow-hidden">
         <SplitPane
           leftTitle={`${diagramType.charAt(0).toUpperCase() + diagramType.slice(1)} Code`}
           rightTitle="Diagram Preview"
+          leftAction={
+            <button
+              onClick={() => setHistoryOpen(true)}
+              className="md:hidden w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              aria-label="Open history"
+              title="History"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          }
           left={
             <div className="h-full flex flex-col overflow-hidden">
               <div className="flex-1 min-h-0 overflow-hidden">
@@ -220,6 +228,20 @@ export default function HomePage() {
         isOpen={historyOpen}
         onClose={() => setHistoryOpen(false)}
         onLoad={handleLoadDiagram}
+      />
+
+      {/* AI Generate Button (Owner Only) */}
+      <AIGenerateButton
+        isOwner={isOwner}
+        onClick={() => setAiModalOpen(true)}
+      />
+
+      {/* AI Generate Modal */}
+      <AIGenerateModal
+        isOpen={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        diagramType={diagramType}
+        onGenerate={setSource}
       />
     </main>
   );

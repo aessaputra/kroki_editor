@@ -1,0 +1,18 @@
+Task 3 empty state evidence - 2026-04-25
+
+Static verification:
+- `lsp_diagnostics src/components/dashboard/DashboardDiagramTable.tsx`: no diagnostics found.
+- `npm run lint`: passed with existing warnings only.
+- `npm run type-check`: passed.
+- `npm run build`: passed.
+
+Final Playwright observations after design-system cleanup:
+- Signed out of the saved-diagram account.
+- Signed up with a second fresh account (`task3c-empty-...@example.test`) and navigated directly to `/dashboard` without saving any diagrams.
+- Observed `[data-testid="empty-diagrams-state"]` on the authenticated dashboard.
+- Observed `empty rows:0` for `[data-testid="diagram-row"]`.
+- Empty state text included `No saved diagrams yet`, the editor CTA `Back to editor`, and non-sensitive guidance for creating the first saved diagram.
+
+Atlas verification:
+- Re-ran a fresh-account Playwright flow against a local dev server without saving diagrams.
+- Confirmed `[data-testid="empty-diagrams-state"]` is visible and `[data-testid="diagram-row"]` count is `0`.

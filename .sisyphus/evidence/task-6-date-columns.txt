@@ -1,0 +1,16 @@
+Task 6 date-column retry QA (2026-04-25T12:53:54.391Z)
+Signed-up test user: task6-date-1777121630815@example.com
+Desktop viewport width: 1280px
+Desktop table width: 1024px
+Updated text: 2026-04-25 12:53 UTC
+Created text: 2026-04-25 12:53 UTC
+Updated rect: {"left":697,"right":889,"width":192,"height":120.5}
+Created rect: {"left":889,"right":1081,"width":192,"height":120.5}
+Horizontal gap between Updated and Created cell boxes: 0px
+Updated width/scrollWidth: 192/192
+Created width/scrollWidth: 192/192
+Updated/Created whitespace: normal/normal
+375px document/body scroll width: 375/375
+375px table internal scroll: true (341/1024)
+375px row delete action reachable after internal scroll: true
+Screenshot: .sisyphus/evidence/task-6-date-columns.png

@@ -1,0 +1,42 @@
+Task 7 verification suite
+
+Command: npm run type-check
+Status: PASS (exit 0)
+Output:
+> kroki_frontend@0.1.0 type-check
+> tsc --noEmit
+
+Command: npm run lint
+Status: PASS with existing warnings (exit 0)
+Output:
+> kroki_frontend@0.1.0 lint
+> eslint
+
+8 warnings total; 0 errors.
+
+Command: npm run test
+Status: PASS (exit 0)
+Output:
+> kroki_frontend@0.1.0 test
+> vitest run
+
+Test Files  2 passed (2)
+Tests       5 passed (5)
+
+Command: npm run build
+Status: PASS (exit 0)
+Output:
+> kroki_frontend@0.1.0 build
+> next build
+
+Build completed successfully.
+Note: Next.js reported the existing baseline-browser-mapping freshness notice.
+
+Command: npm run test:e2e
+Status: PASS (exit 0)
+Output:
+> kroki_frontend@0.1.0 test:e2e
+> playwright test
+
+Running 7 tests using 2 workers
+7 passed

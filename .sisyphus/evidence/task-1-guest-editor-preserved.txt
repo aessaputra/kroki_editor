@@ -1,0 +1,13 @@
+Command/observation log
+
+- Playwright navigation: `http://127.0.0.1:3000/`
+- Result: stayed on `/` after typing into the editor
+- Verified no redirect to `/login` (`hasLogin: false`)
+- Verified the Monaco editor still accepted guest input
+- Extra check: saved diagram reload via `/?diagramId=k1713m0a0902vkz1dtjzfdst5x85hgkf` showed `diagram-load-state` = `loaded`
+- Invalid guest query-param check: `/?diagramId=does-not-exist` stayed on `/`, kept the editor visible, and surfaced a non-blocking `diagram-load-state` error message
+
+Atlas verification:
+- Playwright script confirmed `/` stays at `http://127.0.0.1:3000/`, `[data-testid="home-page-root"]` and `[data-testid="manual-save-button"]` are visible, and login form is absent for a guest.
+- Signed-in handoff check created a saved diagram, queried its Convex id, visited `/?diagramId=<id>`, and observed `[data-testid="diagram-load-state"]` containing `loaded` with Monaco visible.
+- Full verification suite also passed: `npm run type-check && npm run lint && npm run test && npm run build && npm run test:e2e`.

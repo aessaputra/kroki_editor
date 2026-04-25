@@ -1,0 +1,10 @@
+Task 6 navigation QA (2026-04-25T12:47:13.962Z)
+Signed-up test user: task6-1777121231297@example.com
+Root editor shows signed-in Dashboard navigation link: true
+Dashboard navigation reached /dashboard: true
+Dashboard shell visible: true
+Dashboard header Editor/Open editor action visible: true
+Sidebar editor navigation text: Open editorCreate and preview diagrams
+No dead Profile/Settings/Team/Billing links found: true
+Open editor action returns to canonical root editor: true
+Authenticated editor state preserved after returning: true

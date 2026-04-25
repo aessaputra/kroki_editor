@@ -1,0 +1,69 @@
+Task: React-convert selected TailAdmin shell/header/sidebar foundations - mobile behavior
+Timestamp: 2026-04-25T12:10:00Z
+
+Browser verification:
+- Local app served with `npm run dev`.
+- Reused the authenticated browser session from desktop dashboard verification.
+- Mobile viewport: 375x812.
+- Opened `/dashboard`, verified content is reachable while the mobile sidebar is closed, opened the mobile navigation, then closed it again.
+
+Mobile observations:
+```json
+{
+  "url": "http://localhost:3000/dashboard",
+  "closedInitial": {
+    "viewport": { "width": 375, "height": 812 },
+    "bodyScrollWidth": 375,
+    "shellScrollWidth": 375,
+    "sidebarLeft": -288,
+    "sidebarRight": 0,
+    "headerVisible": true,
+    "contentVisible": true,
+    "contentLeft": 0,
+    "contentRight": 375,
+    "links": [
+      { "text": "EditorCreate and preview diagrams", "href": "/" },
+      { "text": "DiagramsDashboard overview", "href": "/dashboard" }
+    ]
+  },
+  "openState": {
+    "viewport": { "width": 375, "height": 812 },
+    "bodyScrollWidth": 375,
+    "shellScrollWidth": 375,
+    "sidebarLeft": 0,
+    "sidebarRight": 288,
+    "headerVisible": true,
+    "contentVisible": true,
+    "contentLeft": 0,
+    "contentRight": 375,
+    "links": [
+      { "text": "EditorCreate and preview diagrams", "href": "/" },
+      { "text": "DiagramsDashboard overview", "href": "/dashboard" }
+    ]
+  },
+  "closedAgain": {
+    "viewport": { "width": 375, "height": 812 },
+    "bodyScrollWidth": 375,
+    "shellScrollWidth": 375,
+    "sidebarRight": 0,
+    "contentVisible": true,
+    "contentLeft": 0,
+    "contentRight": 375
+  }
+}
+```
+
+Console check:
+```text
+Playwright `browser_console_messages` at level=error after mobile verification: 0 errors.
+```
+
+Conclusion:
+- The mobile shell does not create horizontal page overflow (`bodyScrollWidth` and `shellScrollWidth` both equal 375).
+- Main content remains visible and full-width with the sidebar closed.
+- The off-canvas sidebar opens to 288px and closes back off-screen without permanently hiding content.
+
+Atlas verification:
+- Re-ran mobile Playwright flow at 375x812 against a fresh local dev server.
+- Confirmed body scroll width remains 375 before and after sidebar interaction.
+- Confirmed dashboard content remains visible and sidebar element width is 288px when opened.

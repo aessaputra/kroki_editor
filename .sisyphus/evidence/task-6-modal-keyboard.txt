@@ -1,0 +1,17 @@
+Task 6 modal keyboard/responsive QA (2026-04-25T12:47:45.150Z)
+Viewport width for mobile check: 375px
+Document scroll width at 375px: 375px
+Body scroll width at 375px: 375px
+Table uses internal horizontal scroll: true (341/944)
+Delete action reachable after internal scroll at 375px: true
+Detail width/scroll width: 341/341
+Source white-space: pre-wrap; source width/scroll width: 299/299
+Preview overflow-x: auto
+Delete modal opened from keyboard Enter on delete button: true
+Focus after modal open: cancel-delete-button
+Escape closed modal and restored focus to: delete-diagram-button
+Cancel closed modal and restored focus to: delete-diagram-button
+Confirm disabled immediately after click to block duplicate submit: true
+Confirm aria-busy immediately after click: detached
+Rows after permanent confirm: 0
+Empty state visible after deleting the only QA diagram: true

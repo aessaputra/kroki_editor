@@ -1,0 +1,24 @@
+Task 4 detail/preview evidence - 2026-04-25
+
+Implementation evidence:
+- Added read-only dashboard detail panel in src/components/dashboard/DashboardDiagramDetail.tsx with data-testid="diagram-detail".
+- Detail uses existing list data, saved diagram metadata, read-only <pre><code>, buildKrokiUrl(), and DiagramPreview inside data-testid="diagram-preview".
+- Deterministic fallback/error area uses data-testid="diagram-preview-error" and keeps the dashboard shell rendered.
+- Row selection is local to /dashboard and defaults to the first loaded diagram through derived selection.
+
+Verification:
+- LSP diagnostics: no diagnostics for DashboardDiagramTable.tsx, DashboardDiagramDetail.tsx, dashboardFormat.ts, dashboard/index.ts, and DiagramPreview.tsx.
+- npm run lint: passed with 8 pre-existing warnings only (generated Convex eslint-disable comments, existing <img> warnings, existing options.ts unused arg warning).
+- npm run type-check: passed.
+- npm run test: passed, 1 file / 3 tests.
+- npm run build: passed.
+
+Playwright result:
+- Created/saved a valid authenticated diagram through the UI, opened /dashboard, selected the first diagram row, and verified:
+  - beforeEditUrl: http://127.0.0.1:3000/dashboard
+  - selected row aria-selected: true
+  - dashboardDetailVisible: true
+  - detailIncludesMetadata: true
+  - previewIframeVisible: true
+  - previewErrorCount for valid diagram: 0
+  - editorLikeCountInsideDetail: 0

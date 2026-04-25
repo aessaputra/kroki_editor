@@ -1,0 +1,26 @@
+Task 3 diagram table evidence - 2026-04-25
+
+Implementation:
+- Added `src/components/dashboard/DashboardDiagramTable.tsx` with `DashboardDiagramTableSection`, table/list state rendering, deterministic UTC date formatting, local View selection, and required test IDs.
+- Updated `src/components/dashboard/DashboardShell.tsx` to replace placeholder dashboard content with the saved-diagram table section while preserving shell/sidebar/header/content test IDs.
+- Updated `src/components/dashboard/index.ts` exports for the new dashboard table helpers.
+
+Static verification:
+- `lsp_diagnostics src/components/dashboard/DashboardDiagramTable.tsx`: no diagnostics found.
+- `lsp_diagnostics src/components/dashboard/DashboardShell.tsx`: no diagnostics found.
+- `lsp_diagnostics src/components/dashboard/index.ts`: no diagnostics found.
+- `npm run lint`: passed with existing warnings only in generated Convex files, existing img usage, and `src/types/options.ts`.
+- `npm run type-check`: passed.
+- `npm run build`: passed.
+
+Final Playwright observations after design-system cleanup:
+- Started local app with `npm run dev -- --hostname 127.0.0.1`.
+- Signed up as a fresh account (`task3c-saved-...@example.test`), saved a diagram from `/`, opened `/dashboard`, and observed `[data-testid="diagram-table"]`.
+- Observed `table rows:1` and first row text including `plantuml diagram`, `Output: SVG`, `PlantUML`, `2026-04-25 12:18 UTC`, and `Selected View Edit Delete`.
+- Observed first row action counts `view/edit/delete:1/1/1` using `view-diagram-button`, `edit-diagram-button`, and `delete-diagram-button`.
+- Clicked `view-diagram-button`; observed local selection with `Selected` visible and `aria-pressed:true`.
+
+Atlas verification:
+- Re-ran a fresh Playwright flow against a local dev server: signed up, saved a diagram through `/`, opened `/dashboard`, and confirmed `[data-testid="diagram-table"]` plus one `[data-testid="diagram-row"]`.
+- Confirmed row text includes saved diagram name/type/date/action content and action counts `view/edit/delete:1/1/1`.
+- Confirmed clicking View makes the row visibly selected and browser console errors array is empty.

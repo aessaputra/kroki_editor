@@ -1,0 +1,19 @@
+Task 4 edit handoff evidence - 2026-04-25
+
+Implementation evidence:
+- Table row Edit buttons are enabled and navigate with Next router to /?diagramId=<selectedId>.
+- Detail panel also exposes data-testid="edit-diagram-button" as a direct editor handoff link for the selected diagram.
+- Delete remains a disabled placeholder; no delete mutation, confirmation, or unrelated dashboard actions were added.
+- Root editor behavior was not changed; existing /?diagramId=<id> loading path is reused.
+
+Playwright result:
+- From /dashboard, clicked the selected row's data-testid="edit-diagram-button".
+- Final URL: http://127.0.0.1:3000/?diagramId=k17bka5wh99z9831wnnns47cf185g7dp
+- Root editor load state: "Diagram k17bka5wh99z9831wnnns47cf185g7dp: loaded"
+- This confirms the existing editor loaded the selected saved diagram via the diagramId query string.
+
+Verification commands:
+- npm run lint: passed with warnings only.
+- npm run type-check: passed.
+- npm run build: passed.
+- npm run test: passed.

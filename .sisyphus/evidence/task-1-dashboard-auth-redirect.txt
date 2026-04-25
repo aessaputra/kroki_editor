@@ -1,0 +1,11 @@
+Command/observation log
+
+- Playwright navigation: `http://127.0.0.1:3000/dashboard`
+- Result: redirected to `http://127.0.0.1:3000/login?next=/dashboard`
+- Login page rendered; no protected dashboard data was shown
+- Browser install blocker was resolved first by running `npx playwright install chrome`
+
+Atlas verification:
+- Playwright script confirmed `/dashboard` redirects to `http://127.0.0.1:3000/login?next=/dashboard`.
+- Confirmed login form is visible and `[data-testid="dashboard-page-root"]` is not visible.
+- Confirmed unsafe `next=//evil.example` keeps rendering local login form and does not navigate externally.

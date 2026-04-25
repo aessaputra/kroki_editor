@@ -1,0 +1,14 @@
+Task 7 dashboard e2e evidence
+
+Command: npm run test:e2e -- tests/e2e/dashboard.spec.ts
+Status: PASS (exit 0)
+Summary:
+- guest dashboard access redirects to /login?next=/dashboard
+- authenticated dashboard shows saved rows, detail, preview, and edit handoff
+- fresh dashboard accounts show the empty state
+- delete cancel preserves the row; delete confirm clears the last saved diagram
+
+Command: npm run test:e2e
+Status: PASS (exit 0)
+Summary:
+- Full Playwright suite passed with 7 tests using 2 workers

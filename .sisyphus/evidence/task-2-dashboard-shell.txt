@@ -1,0 +1,67 @@
+Task: React-convert selected TailAdmin shell/header/sidebar foundations
+Timestamp: 2026-04-25T12:10:00Z
+
+Files covered:
+- `src/app/dashboard/page.tsx`
+- `src/components/dashboard/DashboardShell.tsx`
+- `src/components/dashboard/DashboardSidebar.tsx`
+- `src/components/dashboard/DashboardHeader.tsx`
+- `src/components/dashboard/index.ts`
+- `src/components/index.ts`
+
+Commands:
+```sh
+npm run lint
+npm run type-check
+npm run build
+```
+
+Result summary:
+```text
+npm run lint: passed with 0 errors; existing warnings remained in generated Convex files, existing img usage, and src/types/options.ts.
+npm run type-check: passed.
+npm run build: passed; Next.js compiled and generated app routes successfully.
+```
+
+LSP diagnostics:
+```text
+src/app/dashboard/page.tsx: no diagnostics found
+src/components/dashboard/DashboardShell.tsx: no diagnostics found
+src/components/dashboard/DashboardSidebar.tsx: no diagnostics found
+src/components/dashboard/DashboardHeader.tsx: no diagnostics found
+```
+
+Browser verification:
+- Started local app with `npm run dev`.
+- Used the existing Playwright signup pattern from `tests/e2e/mvp-smoke.spec.ts`: open `/login`, toggle to signup, fill a unique `task2-<timestamp>@example.test` email, submit, then navigate to `/dashboard` as the authenticated user.
+- The editor route's existing unsaved-change guard raised a `beforeunload` dialog when navigating from `/` to `/dashboard`; accepted it and continued to dashboard verification.
+- Desktop viewport: 1280x900.
+
+Authenticated `/dashboard` observations:
+```json
+{
+  "url": "http://localhost:3000/dashboard",
+  "rects": {
+    "dashboard-shell": { "visible": true, "width": 1280, "height": 900, "left": 0, "right": 1280 },
+    "dashboard-sidebar": { "visible": true, "width": 288, "height": 900, "left": 0, "right": 288 },
+    "dashboard-header": { "visible": true, "width": 992, "height": 104, "left": 288, "right": 1280 },
+    "dashboard-content": { "visible": true, "width": 992, "height": 796, "left": 288, "right": 1280 }
+  },
+  "sidebarLinks": [
+    { "text": "EditorCreate and preview diagrams", "href": "/" },
+    { "text": "DiagramsDashboard overview", "href": "/dashboard" }
+  ],
+  "headerText": "Diagram dashboardSaved diagram workspaceReview saved diagrams and jump back to the editor when you are ready to create.Open editorEditor"
+}
+```
+
+Console check:
+```text
+Playwright `browser_console_messages` at level=error after dashboard verification: 0 errors.
+```
+
+Atlas verification:
+- Re-ran authenticated Playwright flow against a fresh local dev server.
+- Confirmed `dashboard-shell`, `dashboard-sidebar`, `dashboard-header`, and `dashboard-content` are visible at `/dashboard`.
+- Confirmed sidebar links are exactly the app-relevant routes `/` and `/dashboard`.
+- Confirmed browser console errors array was empty.

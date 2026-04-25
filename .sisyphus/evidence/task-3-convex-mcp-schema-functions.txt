@@ -1,0 +1,27 @@
+Task: convex-diagrams MCP/schema/functions
+Date: 2026-04-25
+
+Convex/MCP command outcomes:
+- `npx -y convex@latest mcp start --project-dir /home/coder/dev/kroki_editor`
+  - Outcome: command completed within the 30s tool timeout with no stdout/stderr output.
+- `CONVEX_AGENT_MODE=anonymous npx convex dev --once`
+  - Outcome: blocked because a local backend was already running on port 3210.
+  - Exact output:
+    `CONVEX_AGENT_MODE=anonymous mode is in beta, functionality may change in the future.`
+    `✖ A local backend is still running on port 3210. Please stop it and run this command again.`
+- `npx convex codegen`
+  - Outcome: completed successfully.
+  - Output included: finding component definitions, generating server code, bundling component definitions/schemas/implementations, downloading current deployment state, uploading functions to Convex, generating TypeScript bindings, and running TypeScript.
+
+Generated Convex evidence:
+- `convex/_generated/api.d.ts` imports `../diagrams.js` and includes `diagrams` in `ApiFromModules`.
+- `convex/_generated/dataModel.d.ts` imports `../schema.js`, so the generated data model reflects the current schema after codegen.
+
+Schema/function inspection:
+- `convex/schema.ts` preserves Convex Auth tables and adds the `diagrams` table plus `by_owner_updatedAt` index.
+- `convex/diagrams.ts` exports exactly the MVP function set: `listMyDiagrams`, `getMyDiagram`, `createDiagram`, `updateDiagram`, `renameDiagram`, `deleteDiagram`.
+
+Verification commands:
+- LSP diagnostics for `/home/coder/dev/kroki_editor/convex`: 0 errors, 0 diagnostics.
+- `npm run type-check`: passed.
+- `npm run test -- --passWithNoTests`: passed; no test files were present.

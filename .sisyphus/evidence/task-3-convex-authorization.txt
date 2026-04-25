@@ -1,0 +1,39 @@
+Task: convex-diagrams authorization
+Date: 2026-04-25
+
+Authentication evidence:
+- Every public function in `convex/diagrams.ts` calls `ctx.auth.getUserIdentity()` directly in its handler.
+- Every function rejects missing identity with exactly `Not authenticated`.
+
+Auth scan command/evidence summary:
+- Grep for `getUserIdentity()|Not authenticated|Diagram not found|Unauthorized` found the expected checks in `convex/diagrams.ts`:
+  - `listMyDiagrams`: `getUserIdentity()` and `Not authenticated`.
+  - `getMyDiagram`: `getUserIdentity()`, `Not authenticated`, `Diagram not found`, and `Unauthorized`.
+  - `createDiagram`: `getUserIdentity()` and `Not authenticated`.
+  - `updateDiagram`: `getUserIdentity()`, `Not authenticated`, `Diagram not found`, and `Unauthorized`.
+  - `renameDiagram`: `getUserIdentity()`, `Not authenticated`, `Diagram not found`, and `Unauthorized`.
+  - `deleteDiagram`: `getUserIdentity()`, `Not authenticated`, `Diagram not found`, and `Unauthorized`.
+
+Ownership evidence:
+- `listMyDiagrams` filters with `q.eq('ownerTokenIdentifier', identity.tokenIdentifier)`.
+- `createDiagram` writes `ownerTokenIdentifier: identity.tokenIdentifier`; it does not accept ownership in args.
+- `getMyDiagram`, `updateDiagram`, `renameDiagram`, and `deleteDiagram` all fetch the diagram by id first, throw `Diagram not found` when absent, and throw `Unauthorized` when `diagram.ownerTokenIdentifier !== identity.tokenIdentifier`.
+
+Client-owner scan:
+- Grep for `ownerId|userId|ownerTokenIdentifier\s*:` in `convex/diagrams.ts` found only `ownerTokenIdentifier: identity.tokenIdentifier` in the create insert payload.
+- No mutation/query args accept `userId`, `ownerId`, `ownerTokenIdentifier`, or other client-provided owner identity.
+
+MVP scope check:
+- The only exported functions in `convex/diagrams.ts` are `listMyDiagrams`, `getMyDiagram`, `createDiagram`, `updateDiagram`, `renameDiagram`, and `deleteDiagram`.
+- No sharing, public links, collaboration, folders, tags, search, pinning, retention cleanup, version history, teams, RBAC, or parallel users table were added.
+
+Atlas runtime authorization QA follow-up:
+- Atlas confirmed unauthenticated direct Convex CLI calls fail with the expected auth guard:
+  - `npx convex run diagrams:listMyDiagrams` returned `Not authenticated`.
+  - `npx convex run diagrams:createDiagram '{...}'` returned `Not authenticated`.
+- Atlas confirmed authenticated own-record access works by signing up through `/login`, extracting the Convex Auth JWT from localStorage for `http://127.0.0.1:3210`, and using `ConvexHttpClient` to create, get, update, rename, list, delete, and then verify a deleted diagram returns `Diagram not found`.
+- Atlas confirmed cross-user authorization at runtime:
+  - Signed up two unique email/password users.
+  - User 1 created a diagram.
+  - User 2 attempts to get, update, rename, and delete User 1's diagram all returned `Unauthorized`.
+  - User 1 cleaned up by deleting the diagram.

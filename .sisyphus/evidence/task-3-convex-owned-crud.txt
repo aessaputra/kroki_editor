@@ -1,0 +1,47 @@
+Task: convex-diagrams
+Date: 2026-04-25
+
+Implemented files:
+- `convex/schema.ts`
+- `convex/diagrams.ts`
+- Convex generated files were refreshed via `npx convex codegen`.
+
+Schema evidence:
+- `convex/schema.ts` preserves `...authTables`.
+- Added `diagrams` table with fields: `title`, `source`, `diagramType`, `outputFormat`, `options`, `ownerTokenIdentifier`, `createdAt`, `updatedAt`.
+- `diagramType` is constrained to the existing Kroki `DiagramType` literals from `src/types/index.ts`.
+- `outputFormat` is constrained to `svg`, `png`, `jpeg`, `pdf`, `txt`, and `base64` from `src/types/index.ts`.
+- `options` is constrained as `Record<string, string | number | boolean>` using `v.record(v.string(), v.union(v.string(), v.number(), v.boolean()))`.
+- Added index `by_owner_updatedAt` over `['ownerTokenIdentifier', 'updatedAt']`.
+
+Function evidence:
+- `listMyDiagrams`: lists only the authenticated user's diagrams using `by_owner_updatedAt` and `.order('desc')`, so newest `updatedAt` records return first.
+- `getMyDiagram`: fetches by id and returns only after owner verification.
+- `createDiagram`: accepts no client owner fields, sets `ownerTokenIdentifier` from `identity.tokenIdentifier`, and sets both `createdAt` and `updatedAt` to `Date.now()`.
+- `updateDiagram`: accepts no client owner fields, verifies ownership first, patches only provided diagram fields, and refreshes `updatedAt`.
+- `renameDiagram`: verifies ownership first, changes `title`, and refreshes `updatedAt`.
+- `deleteDiagram`: verifies ownership first, then deletes.
+
+Verification:
+- `npm run type-check`: passed.
+- `npm run test -- --passWithNoTests`: passed; Vitest reported no test files found and exited 0.
+- LSP diagnostics for `/home/coder/dev/kroki_editor/convex`: 0 errors, 0 diagnostics.
+- `npx convex codegen`: completed through TypeScript generation/checking and uploaded functions to the current dev deployment.
+
+Test harness note:
+- No focused Convex runtime tests were added because this repo has Vitest but no Convex test harness/runtime mocking setup. Static function-shape and security scans are recorded in the companion authorization evidence file.
+
+Atlas runtime QA follow-up:
+- Atlas ran unauthenticated direct Convex CLI calls:
+  - `npx convex run diagrams:listMyDiagrams` failed with `Not authenticated`.
+  - `npx convex run diagrams:createDiagram '{...}'` failed with `Not authenticated`.
+- Atlas ran an authenticated CRUD smoke using Playwright signup plus a `ConvexHttpClient` token:
+  - Signed up a unique email/password through `/login`.
+  - Extracted the Convex Auth JWT from localStorage for `http://127.0.0.1:3210`.
+  - Created a diagram through `api.diagrams.createDiagram`.
+  - Queried it through `api.diagrams.getMyDiagram`.
+  - Updated `source` and `outputFormat` through `api.diagrams.updateDiagram`.
+  - Renamed it through `api.diagrams.renameDiagram`.
+  - Listed through `api.diagrams.listMyDiagrams` and confirmed the created id was present.
+  - Deleted it through `api.diagrams.deleteDiagram`.
+  - A subsequent get returned `Diagram not found`.

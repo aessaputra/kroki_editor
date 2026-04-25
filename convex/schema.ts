@@ -1,0 +1,53 @@
+import { authTables } from '@convex-dev/auth/server';
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
+
+export default defineSchema({
+    ...authTables,
+    diagrams: defineTable({
+        title: v.string(),
+        source: v.string(),
+        diagramType: v.union(
+            v.literal('actdiag'),
+            v.literal('blockdiag'),
+            v.literal('bpmn'),
+            v.literal('bytefield'),
+            v.literal('c4plantuml'),
+            v.literal('d2'),
+            v.literal('dbml'),
+            v.literal('ditaa'),
+            v.literal('erd'),
+            v.literal('excalidraw'),
+            v.literal('graphviz'),
+            v.literal('mermaid'),
+            v.literal('nomnoml'),
+            v.literal('nwdiag'),
+            v.literal('packetdiag'),
+            v.literal('pikchr'),
+            v.literal('plantuml'),
+            v.literal('rackdiag'),
+            v.literal('seqdiag'),
+            v.literal('structurizr'),
+            v.literal('svgbob'),
+            v.literal('symbolator'),
+            v.literal('tikz'),
+            v.literal('umlet'),
+            v.literal('vega'),
+            v.literal('vegalite'),
+            v.literal('wavedrom'),
+            v.literal('wireviz'),
+        ),
+        outputFormat: v.union(
+            v.literal('svg'),
+            v.literal('png'),
+            v.literal('jpeg'),
+            v.literal('pdf'),
+            v.literal('txt'),
+            v.literal('base64'),
+        ),
+        options: v.record(v.string(), v.union(v.string(), v.number(), v.boolean())),
+        ownerTokenIdentifier: v.string(),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }).index('by_owner_updatedAt', ['ownerTokenIdentifier', 'updatedAt']),
+});

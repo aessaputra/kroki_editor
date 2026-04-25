@@ -52,3 +52,9 @@
 - `DiagramHistory.tsx` now renders a My Diagrams auth prompt for guests and only lists Convex-backed diagrams when Convex Auth reports an authenticated user.
 - Deleting the currently loaded saved diagram should clear only `currentSavedDiagramId`/saved snapshot; the editor source remains in memory and becomes an unsaved draft for the next manual Save.
 - Playwright QA can create extra setup diagrams with `ConvexHttpClient` and the browser's Convex Auth JWT when the UI intentionally has no Save-as-new control.
+
+## 2026-04-25 Task: mvp-test-coverage
+- Vitest must explicitly exclude `tests/e2e/**`; otherwise `vitest run` collects Playwright specs and fails on `test.beforeAll()` from `@playwright/test`.
+- Minimal storage unit coverage can stay browser-free by exporting and testing `mapSavedDiagram`, `assertAuthenticated`, and `makeDefaultDiagramTitle` from `useSavedDiagrams`.
+- Playwright E2E should assert the preview iframe element exists rather than waiting inside the Kroki iframe body, keeping the smoke independent of external Kroki frame loading.
+- The local Convex E2E preflight reads `NEXT_PUBLIC_CONVEX_URL` from env or `.env.local`, requires a local URL, and fails with a clear prerequisite message when local Convex is unavailable.

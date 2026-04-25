@@ -1,0 +1,47 @@
+Task: mvp-test-coverage
+Timestamp: 2026-04-25T10:58:15Z
+
+Files covered:
+- `tests/e2e/convexPreflight.ts`
+- `tests/e2e/mvp-smoke.spec.ts`
+
+Prerequisites and environment behavior:
+- `npm run test:e2e` runs Playwright through the project script.
+- Tests require local Convex, not production Convex.
+- `tests/e2e/convexPreflight.ts` reads `NEXT_PUBLIC_CONVEX_URL` from the process environment or `.env.local`.
+- The preflight fails loudly if `NEXT_PUBLIC_CONVEX_URL` is missing, non-local, or unreachable.
+- Expected local Convex examples: `http://127.0.0.1:<port>` or `http://localhost:<port>`.
+- Signup smoke uses a unique email by default: `task7-<timestamp>@example.test`.
+- If both `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are provided, those values are used instead of generating unique credentials.
+- Tests do not require SMTP, email verification, password reset, AnythingLLM, OAuth, production secrets, production Convex, existing IndexedDB data, or existing browser state.
+
+E2E coverage added:
+- Guest editor/preview smoke: home page shows editor/preview shell and preview iframe.
+- Guest cannot save: My Diagrams has no list items for guest; clicking Save navigates to `/login` and shows the email/password form.
+- Email/password signup: toggles to signup, creates an account, and lands on authenticated editor state.
+- Save/list/load/rename/delete: saves the default diagram, lists it in My Diagrams, renames it, loads it, deletes it, and asserts the deleted renamed title is absent from the list.
+- Removed UI checks: home page has no `Generate with AI`, `AnythingLLM`, `Owner Console`, or `Owner Login` controls; `/owner` returns 404 and exposes no old owner/auth strings.
+
+Command:
+```sh
+npm run test:e2e
+```
+
+Result summary:
+```text
+> kroki_frontend@0.1.0 test:e2e
+> playwright test
+
+Running 3 tests using 1 worker
+
+✓ [chromium] › tests/e2e/mvp-smoke.spec.ts:13:5 › guest can edit and preview, but Save requires login and creates no guest history (2.3s)
+✓ [chromium] › tests/e2e/mvp-smoke.spec.ts:33:5 › email signup/login can save, list, load, rename, delete, and removes deleted items (3.0s)
+✓ [chromium] › tests/e2e/mvp-smoke.spec.ts:73:5 › /owner is absent and does not expose the removed owner UI (416ms)
+
+3 passed (7.0s)
+```
+
+Source absence scan:
+```text
+Grep for Generate with AI|AnythingLLM|Owner Console|Owner Login|OWNER_SECRET_KEY|OWNER_EMAIL|pending_otp|owner_token in src TypeScript files: no matches found.
+```

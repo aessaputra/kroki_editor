@@ -34,3 +34,7 @@
 ## 2026-04-25 Task: auth-gated-diagram-ui
 - Playwright MCP still cannot launch Chrome at `/opt/google/chrome/chrome`; Task 6 browser evidence used the installed Playwright Chromium package after attempting the MCP path.
 - `npm run lint` remains red only for pre-existing errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; a new sidebar `set-state-in-effect` lint issue was removed during Task 6.
+
+## 2026-04-25 Task: mvp-test-coverage
+- A raw `/AI/i` rendered-text absence assertion is too broad because it matches the `ai` in ordinary words like `Diagram`; use removed UI phrases such as `Generate with AI` and `AnythingLLM` instead.
+- Convex MCP startup command again completed with no stdout/stderr output, so evidence records command completion but no deployment/banner details.

@@ -41,7 +41,7 @@ function toDiagramId(id: string): DiagramId {
     return id as DiagramId;
 }
 
-function mapSavedDiagram(diagram: SavedDiagramDocument): SavedDiagram {
+export function mapSavedDiagram(diagram: SavedDiagramDocument): SavedDiagram {
     return {
         id: diagram._id,
         title: diagram.title,
@@ -58,7 +58,7 @@ function mapSavedDiagram(diagram: SavedDiagramDocument): SavedDiagram {
 
 type SavedDiagramDocument = Doc<'diagrams'>;
 
-function assertAuthenticated(isAuthenticated: boolean): void {
+export function assertAuthenticated(isAuthenticated: boolean): void {
     if (!isAuthenticated) {
         throw new Error('Login required to save diagrams');
     }

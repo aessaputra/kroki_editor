@@ -1,0 +1,29 @@
+Task: mvp-test-coverage
+Timestamp: 2026-04-25T10:58:15Z
+
+Convex runtime status for this task:
+- `npm run test:e2e` passed against local Convex prerequisites.
+- No E2E failure required deeper Convex behavior debugging.
+- The E2E preflight enforces local-only Convex by requiring `NEXT_PUBLIC_CONVEX_URL` to be `http://127.0.0.1:*` or `http://localhost:*` and reachable before tests run.
+
+Convex auth/storage guard scan:
+```text
+Grep for getUserIdentity()|Not authenticated|Unauthorized|Diagram not found in convex/*.ts found the expected guards in convex/diagrams.ts:
+- listMyDiagrams: getUserIdentity(), Not authenticated
+- getMyDiagram: getUserIdentity(), Not authenticated, Diagram not found, Unauthorized
+- createDiagram: getUserIdentity(), Not authenticated
+- updateDiagram: getUserIdentity(), Not authenticated, Diagram not found, Unauthorized
+- renameDiagram: getUserIdentity(), Not authenticated, Diagram not found, Unauthorized
+- deleteDiagram: getUserIdentity(), Not authenticated, Diagram not found, Unauthorized
+```
+
+Convex MCP command:
+```sh
+npx -y convex@latest mcp start --project-dir "/home/coder/dev/kroki_editor"
+```
+
+Result summary:
+```text
+Command exited within the 20s evidence timeout with no stdout/stderr output.
+This matches prior project evidence where the MCP startup command completed without a deployment/banner printout.
+```

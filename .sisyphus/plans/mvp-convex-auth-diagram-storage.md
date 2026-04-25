@@ -406,7 +406,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `feat(ui): add auth gated diagram management` | Files: `src/app/page.tsx`, `src/components/DiagramHistory.tsx`, related auth/save UI components
 
-- [ ] 7. Add Minimal Unit and E2E Coverage
+- [x] 7. Add Minimal Unit and E2E Coverage
 
   **What to do**: Add Vitest tests for practical pure logic and Convex-facing behavior that can run locally without a browser where feasible. At minimum test saved-diagram validation/mapping helpers and auth-gated UI logic if extracted. Add Playwright smoke tests for guest editor/preview, guest cannot save, email/password signup/login using `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`, save/list/load/rename/delete, AI UI absence, owner route absence. Add `data-testid` attributes only where needed for reliable tests. Tests may assume user has completed local Convex setup and `npx convex dev` is running; document this in test README/evidence.
   **Must NOT do**: Do not make tests depend on real SMTP, AnythingLLM, production Convex, or existing IndexedDB data. Do not skip tests silently if Convex is unavailable; fail with a clear prerequisite message.

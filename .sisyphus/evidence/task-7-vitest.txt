@@ -1,0 +1,48 @@
+Task: mvp-test-coverage
+Timestamp: 2026-04-25T10:58:15Z
+
+Files covered:
+- `tests/unit/useSavedDiagrams.test.ts`
+- `src/hooks/useSavedDiagrams.ts`
+- `vitest.config.ts`
+
+Unit coverage added:
+- `mapSavedDiagram` maps Convex diagram documents to the `SavedDiagram` compatibility shape (`id`, `name`, `timestamp`, timestamps, options).
+- `assertAuthenticated` throws `Login required to save diagrams` for guest save/storage operations and allows authenticated calls.
+- `makeDefaultDiagramTitle` includes the diagram type in generated titles under fake timers.
+
+Vitest configuration:
+- `vitest.config.ts` excludes `tests/e2e/**` so Playwright specs are not collected by Vitest.
+
+Diagnostics:
+- `lsp_diagnostics` reported no diagnostics for:
+  - `src/hooks/useSavedDiagrams.ts`
+  - `vitest.config.ts`
+  - `tests/unit/useSavedDiagrams.test.ts`
+  - `tests/e2e/convexPreflight.ts`
+  - `tests/e2e/mvp-smoke.spec.ts`
+
+Command:
+```sh
+npm run test
+```
+
+Result summary:
+```text
+> kroki_frontend@0.1.0 test
+> vitest run
+
+RUN  v3.2.4 /home/coder/dev/kroki_editor
+
+✓ tests/unit/useSavedDiagrams.test.ts (3 tests) 26ms
+
+Test Files  1 passed (1)
+Tests       3 passed (3)
+Duration    1.11s
+```
+
+Additional verification:
+```text
+npm run type-check: passed (`tsc --noEmit`)
+npm run build: passed; Next build reported routes `/`, `/_not-found`, `/login`, and `ƒ Proxy (Middleware)`.
+```

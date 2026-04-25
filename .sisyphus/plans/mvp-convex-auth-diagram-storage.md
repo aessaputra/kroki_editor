@@ -317,7 +317,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `refactor(ai-auth): remove owner ai subsystem` | Files: deleted AI/auth files, `src/app/page.tsx`, `src/components/index.ts`, `package.json`, `package-lock.json`
 
-- [ ] 5. Replace IndexedDB Storage with Convex-backed Diagram Service
+- [x] 5. Replace IndexedDB Storage with Convex-backed Diagram Service
 
   **What to do**: Remove `useDiagramStorage.ts` and `useAutoSave.ts` usage. Add a new client-facing hook/service such as `useSavedDiagrams` that wraps Convex queries/mutations for authenticated users only. It must expose manual operations for `createDiagram`, `updateCurrentDiagram`, `loadDiagram`, `deleteDiagram`, `renameDiagram`, and `listDiagrams`. Track current loaded diagram id in React state in `src/app/page.tsx` or a dedicated editor state wrapper. Manual save behavior: if authenticated and current diagram has a loaded/saved id, `Save` updates that diagram; if authenticated and no saved id, `Save` creates a new diagram with title prompted/defaulted to diagram type + date. Guest save attempts must not call Convex; they should open `/login` or show login CTA. Remove session restore from `getLastDiagram`. Do not add auto-save.
   **Must NOT do**: Do not keep `idb-keyval` as fallback. Do not read old IndexedDB keys. Do not use localStorage/sessionStorage for current diagram id or drafts.

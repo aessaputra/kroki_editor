@@ -26,3 +26,7 @@
 ## 2026-04-25 Task: convex-diagrams
 - `CONVEX_AGENT_MODE=anonymous npx convex dev --once` was blocked because a local backend is already running on port 3210; `npx convex codegen` was used instead and completed successfully.
 - Convex MCP startup command `npx -y convex@latest mcp start --project-dir /home/coder/dev/kroki_editor` completed with no stdout/stderr output, so evidence records command completion but no deployment/banner details.
+
+## 2026-04-25 Task: convex-storage-service
+- Playwright MCP could not run because Chrome was missing at `/opt/google/chrome/chrome`; browser evidence used the installed Playwright Chromium package instead.
+- `npm run lint` remains red on the known pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; this task did not change those files.

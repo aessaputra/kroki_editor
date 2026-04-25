@@ -38,7 +38,7 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
     const previousActiveElement = useRef<HTMLElement | null>(null);
     const editInputRef = useRef<HTMLInputElement>(null);
 
-    const { getAllDiagrams, deleteDiagram, togglePin, renameDiagram } = useDiagramStorage();
+    const { getAllDiagrams, deleteDiagram, renameDiagram } = useDiagramStorage();
 
     // Load diagrams on mount
     const loadHistory = useCallback(async () => {
@@ -93,7 +93,7 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
     // Handle load diagram
     const handleLoad = useCallback(async (diagram: SavedDiagram) => {
         onLoad(diagram);
-        toast.success(`Loaded: ${diagram.name}`);
+        toast.success(`Loaded: ${diagram.title}`);
         onClose();
     }, [onLoad, onClose]);
 
@@ -108,25 +108,15 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
             await deleteDiagram(id);
             toast.success('Diagram deleted');
             await loadHistory(); // Reload list
-        } catch (error) {
+        } catch {
             // Error already handled in deleteDiagram
         }
     }, [deleteDiagram, loadHistory]);
 
-    // Handle toggle pin
-    const handleTogglePin = useCallback(async (id: string) => {
-        try {
-            await togglePin(id);
-            await loadHistory(); // Reload to show updated pin status
-        } catch (error) {
-            // Error already handled in togglePin
-        }
-    }, [togglePin, loadHistory]);
-
     // Start editing diagram name
     const startEdit = useCallback((diagram: SavedDiagram) => {
         setEditingId(diagram.id);
-        setEditValue(diagram.name);
+        setEditValue(diagram.title);
         // Focus input on next tick
         setTimeout(() => editInputRef.current?.focus(), 50);
     }, []);
@@ -140,7 +130,7 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
         try {
             await renameDiagram(editingId, editValue.trim());
             await loadHistory();
-        } catch (error) {
+        } catch {
             // Error handled in renameDiagram
         }
         setEditingId(null);
@@ -253,7 +243,7 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                 </svg>
                             </div>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">No saved diagrams</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Your diagrams will auto-save as you type</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Use Save after signing in to keep diagrams here</p>
                         </div>
                     )}
 
@@ -262,20 +252,12 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                             {diagrams.map((diagram) => (
                                 <li
                                     key={diagram.id}
-                                    className={`p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm transition-all hover:shadow-md ${diagram.isPinned
-                                        ? 'border-yellow-300 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-900/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
-                                        }`}
+                                    className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600"
                                 >
                                     {/* Header row */}
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                {diagram.isPinned && (
-                                                    <svg className="w-4 h-4 text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-label="Pinned">
-                                                        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                                                    </svg>
-                                                )}
                                                 {editingId === diagram.id ? (
                                                     <input
                                                         ref={editInputRef}
@@ -293,7 +275,7 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                                         onDoubleClick={() => startEdit(diagram)}
                                                         title="Double-click to rename"
                                                     >
-                                                        {diagram.name}
+                                                        {diagram.title}
                                                     </h3>
                                                 )}
                                             </div>
@@ -312,30 +294,16 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                     {/* Actions */}
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleTogglePin(diagram.id)}
-                                            className={`min-h-[44px] min-w-[44px] p-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${diagram.isPinned
-                                                ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-600 focus:ring-yellow-500'
-                                                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 focus:ring-gray-500'
-                                                }`}
-                                            aria-label={diagram.isPinned ? `Unpin ${diagram.name}` : `Pin ${diagram.name}`}
-                                            aria-pressed={diagram.isPinned}
-                                            title={diagram.isPinned ? 'Unpin' : 'Pin'}
-                                        >
-                                            <svg className="w-5 h-5" fill={diagram.isPinned ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                            </svg>
-                                        </button>
-                                        <button
                                             onClick={() => handleLoad(diagram)}
                                             className="flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                            aria-label={`Load diagram: ${diagram.name}`}
+                                            aria-label={`Load diagram: ${diagram.title}`}
                                         >
                                             Load
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(diagram.id, diagram.name)}
+                                            onClick={() => handleDelete(diagram.id, diagram.title)}
                                             className="min-h-[44px] p-2.5 text-sm font-medium bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                            aria-label={`Delete diagram: ${diagram.name}`}
+                                            aria-label={`Delete diagram: ${diagram.title}`}
                                             title="Delete"
                                         >
                                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -352,4 +320,3 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
         </>
     );
 }
-

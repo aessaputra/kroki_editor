@@ -3,12 +3,15 @@
  */
 
 /**
- * Saved diagram in IndexedDB storage
+ * Saved diagram returned by Convex-backed storage.
+ * name/timestamp remain as compatibility aliases for the current history UI.
  */
 export interface SavedDiagram {
   /** Unique identifier for the diagram */
   id: string;
-  /** User-provided or auto-generated name */
+  /** User-provided or auto-generated title */
+  title: string;
+  /** Compatibility alias for title */
   name: string;
   /** Diagram source code */
   source: string;
@@ -18,12 +21,14 @@ export interface SavedDiagram {
   outputFormat: OutputFormat;
   /** Diagram-specific options */
   options: Record<string, string | number | boolean>;
-  /** Timestamp when diagram was saved */
+  /** Timestamp when diagram was last updated; compatibility alias for updatedAt */
   timestamp: number;
+  /** Timestamp when diagram was created */
+  createdAt: number;
+  /** Timestamp when diagram was last updated */
+  updatedAt: number;
   /** Optional thumbnail preview (base64 encoded image) */
   thumbnail?: string;
-  /** Whether diagram is pinned (protected from auto-cleanup) */
-  isPinned?: boolean;
 }
 
 /**

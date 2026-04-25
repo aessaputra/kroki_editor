@@ -7,13 +7,14 @@
  * and live Kroki preview.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useConvexAuth } from 'convex/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useDiagramEditor } from '@/hooks/useDiagramEditor';
-import { useAutoSave } from '@/hooks/useAutoSave';
-import { useDiagramStorage } from '@/hooks/useDiagramStorage';
+import { makeDefaultDiagramTitle, useSavedDiagrams } from '@/hooks/useSavedDiagrams';
 import {
   DiagramEditor,
   DiagramPreview,
@@ -31,8 +32,11 @@ import type { SavedDiagram } from '@/types';
 export default function HomePage() {
   // History sidebar state
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [currentSavedDiagramId, setCurrentSavedDiagramId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const { isAuthenticated, isLoading: authIsLoading } = useConvexAuth();
   const { signOut } = useAuthActions();
+  const router = useRouter();
 
   // Use the diagram editor hook for all state management
   const {
@@ -50,26 +54,7 @@ export default function HomePage() {
     supportedFormats,
   } = useDiagramEditor('plantuml');
 
-  // Storage operations
-  const { getLastDiagram } = useDiagramStorage();
-
-  // Enable auto-save
-  useAutoSave(source, diagramType, outputFormat, options);
-
-  // Session restore: load last diagram on mount
-  useEffect(() => {
-    const restoreSession = async () => {
-      const lastDiagram = await getLastDiagram();
-      if (lastDiagram) {
-        setSource(lastDiagram.source);
-        setDiagramType(lastDiagram.diagramType);
-        setOutputFormat(lastDiagram.outputFormat);
-        setOptions(lastDiagram.options);
-      }
-    };
-
-    restoreSession();
-  }, [getLastDiagram, setSource, setDiagramType, setOutputFormat, setOptions]);
+  const { saveCurrentDiagram } = useSavedDiagrams();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -86,11 +71,42 @@ export default function HomePage() {
   }, []);
 
   // Handle load diagram from history
+  const handleSaveDiagram = useCallback(async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    if (!source.trim()) {
+      toast.error('Add diagram source before saving');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const saved = await saveCurrentDiagram({
+        title: currentSavedDiagramId ? undefined : makeDefaultDiagramTitle(diagramType),
+        source,
+        diagramType,
+        outputFormat,
+        options,
+      }, currentSavedDiagramId);
+      setCurrentSavedDiagramId(saved.id);
+      toast.success(currentSavedDiagramId ? 'Diagram updated' : 'Diagram saved');
+    } catch (error) {
+      console.error('Failed to save diagram:', error);
+      toast.error('Failed to save diagram');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [currentSavedDiagramId, diagramType, isAuthenticated, options, outputFormat, router, saveCurrentDiagram, source]);
+
   const handleLoadDiagram = (diagram: SavedDiagram) => {
-    setSource(diagram.source);
     setDiagramType(diagram.diagramType);
     setOutputFormat(diagram.outputFormat);
     setOptions(diagram.options);
+    setTimeout(() => setSource(diagram.source), 0);
+    setCurrentSavedDiagramId(diagram.id);
   };
 
   return (
@@ -113,6 +129,15 @@ export default function HomePage() {
 
           {/* Controls - responsive layout */}
           <div className="flex items-center gap-1.5 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => void handleSaveDiagram()}
+              disabled={isSaving || authIsLoading}
+              className="btn-primary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              data-testid="manual-save-button"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
             {authIsLoading ? (
               <span className="hidden sm:inline-flex badge" data-testid="auth-loading-state">
                 Checking account...

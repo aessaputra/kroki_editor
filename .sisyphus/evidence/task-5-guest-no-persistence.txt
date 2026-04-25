@@ -1,0 +1,7 @@
+Task: convex-storage-service
+Timestamp: 2026-04-25T10:33:50.052Z
+Scenario: guest clicks the manual Save button from the editor.
+Observed URL after click: http://127.0.0.1:3000/login
+Convex create/update mutation requests before login: 0
+Result: guest save attempt navigated to /login and did not issue create/update diagram mutations.
+Note: Playwright MCP Chrome was unavailable, so this was exercised with the installed Playwright Chromium package.

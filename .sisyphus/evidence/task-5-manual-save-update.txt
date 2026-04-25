@@ -1,0 +1,18 @@
+Task: convex-storage-service
+Timestamp: 2026-04-25T10:33:50.848Z
+Scenario: authenticated user signs up, clicks Save once, then clicks Save again with the same current saved diagram id.
+Authenticated test account: task5-1777113230116@example.test
+Observed toast after first save: Diagram saved
+Observed toast after second save: Diagram updated
+History list item count after two saves: 1
+History text excerpt:
+History
+1
+plantuml diagram 4/25/2026, 10:33:50 AM
+
+Just now
+
+plantuml
+Load
+Result: first manual save created a saved diagram and second manual save updated the current saved diagram instead of creating a duplicate.
+Note: Playwright MCP Chrome was unavailable, so this was exercised with the installed Playwright Chromium package.

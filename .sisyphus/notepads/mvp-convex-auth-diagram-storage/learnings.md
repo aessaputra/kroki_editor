@@ -40,3 +40,9 @@
 - `npx convex codegen` successfully regenerated Convex bindings and included the new `diagrams` module in `convex/_generated/api.d.ts`.
 - Vitest is installed, but there are still no test files or Convex runtime test harness in the repo; `npm run test -- --passWithNoTests` passes as an empty suite.
 - Runtime Convex QA is viable after Playwright browser signup by extracting the Convex Auth JWT from localStorage for `http://127.0.0.1:3210` and passing it to `ConvexHttpClient`.
+
+## 2026-04-25 Task: convex-storage-service
+- Replacing browser persistence can keep `useDiagramStorage` as a compatibility adapter, but the real service layer should be `useSavedDiagrams` backed only by Convex queries/mutations.
+- Manual save behavior is tracked with an in-memory `currentSavedDiagramId`: no id creates a Convex diagram, and an existing id updates the same diagram.
+- Guest save verification works by clicking the manual Save button and confirming navigation to `/login` with zero create/update mutation requests.
+- Authenticated browser smoke verified first Save creates one diagram and second Save updates it; the history list stayed at one item.

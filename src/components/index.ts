@@ -9,3 +9,4 @@ export { DiagramOptions } from './DiagramOptions';
 export { FormatSelector } from './FormatSelector';
 export { SplitPane } from './SplitPane';
 export { MyDiagramsSidebar } from './DiagramHistory';
+export { DashboardShell } from './dashboard';

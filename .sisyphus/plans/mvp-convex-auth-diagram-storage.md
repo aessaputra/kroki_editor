@@ -361,7 +361,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `refactor(storage): replace indexeddb with convex diagrams` | Files: `src/hooks/useDiagramStorage.ts`, `src/hooks/useAutoSave.ts`, new saved-diagram hook/service, `src/types/index.ts`, `src/app/page.tsx`
 
-- [ ] 6. Refactor Editor UI and Diagram History for Guest/Auth MVP
+- [x] 6. Refactor Editor UI and Diagram History for Guest/Auth MVP
 
   **What to do**: Update the main page header and history/sidebar UI to reflect authenticated “My Diagrams” instead of browser “History”. Add explicit Save button in header or editor toolbar. For guests, show “Login to save” and disable/hide My Diagrams list or show an empty auth prompt; guests must still edit and preview diagrams. For authenticated users, My Diagrams opens Convex-backed list with load/delete/rename. Remove pin UI and retention text. Delete confirmation may remain via `confirm()` for MVP, but Playwright tests must handle it. If deleting the currently loaded diagram, clear current saved id and keep the editor content as unsaved in memory. If loading another diagram while current editor has unsaved changes, use a simple `confirm('Discard unsaved changes?')`; if user cancels, do not load. On logout with unsaved changes, keep current in-memory editor content but clear current saved id and hide My Diagrams until login.
   **Must NOT do**: Do not add folders/search/tags/pinning/public share. Do not use browser storage for dirty state.

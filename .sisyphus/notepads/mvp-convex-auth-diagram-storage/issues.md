@@ -30,3 +30,7 @@
 ## 2026-04-25 Task: convex-storage-service
 - Playwright MCP could not run because Chrome was missing at `/opt/google/chrome/chrome`; browser evidence used the installed Playwright Chromium package instead.
 - `npm run lint` remains red on the known pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; this task did not change those files.
+
+## 2026-04-25 Task: auth-gated-diagram-ui
+- Playwright MCP still cannot launch Chrome at `/opt/google/chrome/chrome`; Task 6 browser evidence used the installed Playwright Chromium package after attempting the MCP path.
+- `npm run lint` remains red only for pre-existing errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; a new sidebar `set-state-in-effect` lint issue was removed during Task 6.

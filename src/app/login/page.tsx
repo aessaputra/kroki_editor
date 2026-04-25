@@ -59,7 +59,7 @@ export default function LoginPage() {
                             {flow === 'signIn' ? 'Login to save diagrams' : 'Create an account'}
                         </h1>
                         <p className="mt-2 text-sm text-text-secondary">
-                            Guests can keep editing. Login when you want this browser session ready for saved diagrams.
+                            Guests can keep editing. Login when you want saved diagrams tied to your account.
                         </p>
                     </div>
 

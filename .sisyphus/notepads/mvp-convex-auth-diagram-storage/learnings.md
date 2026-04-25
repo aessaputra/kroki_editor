@@ -46,3 +46,9 @@
 - Manual save behavior is tracked with an in-memory `currentSavedDiagramId`: no id creates a Convex diagram, and an existing id updates the same diagram.
 - Guest save verification works by clicking the manual Save button and confirming navigation to `/login` with zero create/update mutation requests.
 - Authenticated browser smoke verified first Save creates one diagram and second Save updates it; the history list stayed at one item.
+
+## 2026-04-25 Task: auth-gated-diagram-ui
+- The editor page can track dirty state without browser storage by comparing the current source/type/format/options snapshot to the last saved/loaded Convex snapshot, plus a transient `hasDraftChanges` flag for unsaved new diagrams.
+- `DiagramHistory.tsx` now renders a My Diagrams auth prompt for guests and only lists Convex-backed diagrams when Convex Auth reports an authenticated user.
+- Deleting the currently loaded saved diagram should clear only `currentSavedDiagramId`/saved snapshot; the editor source remains in memory and becomes an unsaved draft for the next manual Save.
+- Playwright QA can create extra setup diagrams with `ConvexHttpClient` and the browser's Convex Auth JWT when the UI intentionally has no Save-as-new control.

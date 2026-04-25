@@ -1,33 +1,43 @@
 /**
- * DiagramHistory Component
+ * My Diagrams sidebar component
  * 
- * Displays saved diagrams in a sidebar with load/delete actions.
+ * Displays a user's saved diagrams in a sidebar with load/delete actions.
  * Following best practices: loading states, error handling, accessibility.
  */
 
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { useDiagramStorage } from '@/hooks/useDiagramStorage';
+import { useSavedDiagrams } from '@/hooks/useSavedDiagrams';
 import type { SavedDiagram } from '@/types';
 
-interface DiagramHistoryProps {
+interface MyDiagramsSidebarProps {
     /** Callback when user loads a diagram */
-    onLoad: (diagram: SavedDiagram) => void;
+    onLoad: (diagram: SavedDiagram) => boolean | void;
     /** Whether the sidebar is currently open */
     isOpen: boolean;
     /** Callback to close the sidebar */
     onClose: () => void;
+    /** Currently loaded saved diagram id */
+    currentSavedDiagramId: string | null;
+    /** Callback when the current saved diagram is deleted */
+    onDeleteCurrent: (id: string) => void;
 }
 
 /**
- * Diagram history sidebar component
+ * My Diagrams sidebar component
  */
-export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps) {
-    const [diagrams, setDiagrams] = useState<SavedDiagram[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export function MyDiagramsSidebar({
+    onLoad,
+    isOpen,
+    onClose,
+    currentSavedDiagramId,
+    onDeleteCurrent,
+}: MyDiagramsSidebarProps) {
     const [error, setError] = useState<string | null>(null);
+    const [hiddenDiagramIds, setHiddenDiagramIds] = useState<Set<string>>(() => new Set());
 
     // Inline editing state
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -38,22 +48,17 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
     const previousActiveElement = useRef<HTMLElement | null>(null);
     const editInputRef = useRef<HTMLInputElement>(null);
 
-    const { getAllDiagrams, deleteDiagram, renameDiagram } = useDiagramStorage();
+    const {
+        diagrams,
+        isLoading,
+        isAuthenticated,
+        deleteDiagram,
+        renameDiagram,
+    } = useSavedDiagrams();
 
-    // Load diagrams on mount
-    const loadHistory = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
-            const saved = await getAllDiagrams();
-            setDiagrams(saved);
-        } catch (err) {
-            setError('Failed to load diagram history');
-            console.error('Error loading history:', err);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [getAllDiagrams]);
+    const visibleDiagrams = isAuthenticated
+        ? diagrams.filter((diagram) => !hiddenDiagramIds.has(diagram.id))
+        : [];
 
     // Handle Escape key and focus management
     useEffect(() => {
@@ -84,15 +89,11 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
         };
     }, [isOpen, onClose]);
 
-    useEffect(() => {
-        if (isOpen) {
-            loadHistory();
-        }
-    }, [isOpen, loadHistory]);
-
     // Handle load diagram
     const handleLoad = useCallback(async (diagram: SavedDiagram) => {
-        onLoad(diagram);
+        const didLoad = onLoad(diagram);
+        if (didLoad === false) return;
+
         toast.success(`Loaded: ${diagram.title}`);
         onClose();
     }, [onLoad, onClose]);
@@ -105,13 +106,19 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
         }
 
         try {
+            setError(null);
             await deleteDiagram(id);
+            setHiddenDiagramIds((previousIds) => new Set(previousIds).add(id));
+            if (id === currentSavedDiagramId) {
+                onDeleteCurrent(id);
+            }
             toast.success('Diagram deleted');
-            await loadHistory(); // Reload list
-        } catch {
-            // Error already handled in deleteDiagram
+        } catch (err) {
+            setError('Failed to delete diagram');
+            console.error('Error deleting diagram:', err);
+            toast.error('Failed to delete diagram');
         }
-    }, [deleteDiagram, loadHistory]);
+    }, [currentSavedDiagramId, deleteDiagram, onDeleteCurrent]);
 
     // Start editing diagram name
     const startEdit = useCallback((diagram: SavedDiagram) => {
@@ -128,13 +135,16 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
             return;
         }
         try {
+            setError(null);
             await renameDiagram(editingId, editValue.trim());
-            await loadHistory();
-        } catch {
-            // Error handled in renameDiagram
+            toast.success('Diagram renamed');
+        } catch (err) {
+            setError('Failed to rename diagram');
+            console.error('Error renaming diagram:', err);
+            toast.error('Failed to rename diagram');
         }
         setEditingId(null);
-    }, [editingId, editValue, renameDiagram, loadHistory]);
+    }, [editingId, editValue, renameDiagram]);
 
     // Cancel editing
     const cancelEdit = useCallback(() => {
@@ -192,20 +202,21 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                 className="fixed right-0 top-0 h-full w-full sm:w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 z-50 overflow-y-auto shadow-xl"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Diagram history"
+                aria-label="My Diagrams"
+                data-testid="my-diagrams-sidebar"
             >
                 {/* Header */}
                 <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between z-10">
                     <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4m4 4h6" />
                         </svg>
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            History
+                            My Diagrams
                         </h2>
-                        {diagrams.length > 0 && (
+                        {visibleDiagrams.length > 0 && (
                             <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
-                                {diagrams.length}
+                                {visibleDiagrams.length}
                             </span>
                         )}
                     </div>
@@ -213,7 +224,8 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                         ref={closeButtonRef}
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        aria-label="Close history sidebar"
+                        aria-label="Close My Diagrams sidebar"
+                        data-testid="my-diagrams-close-button"
                     >
                         <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -229,30 +241,53 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                         </div>
                     )}
 
+                    {!isLoading && !isAuthenticated && (
+                        <div className="text-center py-12 px-4" data-testid="my-diagrams-auth-prompt">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">Login to see My Diagrams</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Guests can keep editing and previewing. Sign in when you want to save diagrams to your account.
+                            </p>
+                            <Link
+                                href="/login"
+                                className="btn-primary mt-5 w-full"
+                                data-testid="my-diagrams-login-link"
+                            >
+                                Login to save
+                            </Link>
+                        </div>
+                    )}
+
                     {error && (
                         <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg" role="alert">
                             {error}
                         </div>
                     )}
 
-                    {!isLoading && !error && diagrams.length === 0 && (
+                    {!isLoading && isAuthenticated && !error && visibleDiagrams.length === 0 && (
                         <div className="text-center py-12 px-4">
                             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                                 <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">No saved diagrams</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Use Save after signing in to keep diagrams here</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">No saved diagrams yet</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Use the manual Save button to add your first diagram.</p>
                         </div>
                     )}
 
-                    {!isLoading && !error && diagrams.length > 0 && (
-                        <ul className="space-y-3" role="list" aria-label="Saved diagrams">
-                            {diagrams.map((diagram) => (
+                    {!isLoading && isAuthenticated && !error && visibleDiagrams.length > 0 && (
+                        <ul className="space-y-3" role="list" aria-label="My saved diagrams">
+                            {visibleDiagrams.map((diagram) => (
                                 <li
                                     key={diagram.id}
                                     className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600"
+                                    data-testid="my-diagram-list-item"
+                                    data-diagram-id={diagram.id}
                                 >
                                     {/* Header row */}
                                     <div className="flex items-start justify-between gap-3">
@@ -264,16 +299,17 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                                         type="text"
                                                         value={editValue}
                                                         onChange={(e) => setEditValue(e.target.value)}
-                                                        onBlur={submitEdit}
                                                         onKeyDown={handleEditKeyDown}
                                                         className="flex-1 px-2 py-1 text-sm font-medium bg-white dark:bg-gray-700 border-2 border-blue-500 rounded-lg focus:outline-none"
                                                         aria-label="Edit diagram name"
+                                                        data-testid="my-diagram-rename-input"
                                                     />
                                                 ) : (
                                                     <h3
                                                         className="font-medium text-gray-900 dark:text-white truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                                         onDoubleClick={() => startEdit(diagram)}
                                                         title="Double-click to rename"
+                                                        data-testid="my-diagram-title"
                                                     >
                                                         {diagram.title}
                                                     </h3>
@@ -288,29 +324,69 @@ export function DiagramHistory({ onLoad, isOpen, onClose }: DiagramHistoryProps)
                                         </span>
                                     </div>
 
+                                    {currentSavedDiagramId === diagram.id && (
+                                        <p className="badge-accent mt-3" data-testid="current-saved-diagram-indicator">
+                                            Currently open
+                                        </p>
+                                    )}
+
                                     {/* Divider */}
                                     <div className="border-t border-gray-100 dark:border-gray-700 my-3" />
 
                                     {/* Actions */}
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleLoad(diagram)}
-                                            className="flex-1 min-h-[44px] px-4 py-2.5 text-sm font-medium bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                            aria-label={`Load diagram: ${diagram.title}`}
-                                        >
-                                            Load
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(diagram.id, diagram.title)}
-                                            className="min-h-[44px] p-2.5 text-sm font-medium bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                            aria-label={`Delete diagram: ${diagram.title}`}
-                                            title="Delete"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    {editingId === diagram.id ? (
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => void submitEdit()}
+                                                className="btn-primary flex-1 min-h-[40px] px-3 py-2 text-sm"
+                                                data-testid="my-diagram-rename-save-button"
+                                            >
+                                                Save name
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={cancelEdit}
+                                                className="btn-secondary min-h-[40px] px-3 py-2 text-sm"
+                                                data-testid="my-diagram-rename-cancel-button"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleLoad(diagram)}
+                                                className="btn-primary min-h-[44px] px-4 py-2.5 text-sm"
+                                                aria-label={`Load diagram: ${diagram.title}`}
+                                                data-testid="my-diagram-load-button"
+                                            >
+                                                Load
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => startEdit(diagram)}
+                                                className="btn-secondary min-h-[44px] px-3 py-2.5 text-sm"
+                                                aria-label={`Rename diagram: ${diagram.title}`}
+                                                data-testid="my-diagram-rename-button"
+                                            >
+                                                Rename
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDelete(diagram.id, diagram.title)}
+                                                className="min-h-[44px] p-2.5 text-sm font-medium bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                aria-label={`Delete diagram: ${diagram.title}`}
+                                                title="Delete"
+                                                data-testid="my-diagram-delete-button"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
                                 </li>
                             ))}
                         </ul>

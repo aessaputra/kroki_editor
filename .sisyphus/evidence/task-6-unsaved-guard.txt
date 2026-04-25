@@ -1,0 +1,8 @@
+Task: auth-gated-diagram-ui
+Timestamp: 2026-04-25T10:48:55.055Z
+Scenario: unsaved-change guard when loading another saved diagram.
+Cancel flow dialog message: Discard unsaved changes?
+Cancel flow preserved unsaved editor content and kept My Diagrams open.
+Accept flow dialog message: Discard unsaved changes?
+Accept flow loaded "Task 6 Alpha 1777114127462" and editor text matched alpha marker.
+Result: PASS

@@ -7,7 +7,7 @@
  * and live Kroki preview.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useConvexAuth } from 'convex/react';
 import Link from 'next/link';
@@ -22,17 +22,50 @@ import {
   DiagramOptions,
   FormatSelector,
   SplitPane,
-  DiagramHistory,
 } from '@/components';
+import { MyDiagramsSidebar } from '@/components/DiagramHistory';
 import type { SavedDiagram } from '@/types';
+
+interface DiagramSnapshot {
+  source: string;
+  diagramType: SavedDiagram['diagramType'];
+  outputFormat: SavedDiagram['outputFormat'];
+  options: string;
+}
+
+function createDiagramSnapshot({
+  source,
+  diagramType,
+  outputFormat,
+  options,
+}: Pick<SavedDiagram, 'source' | 'diagramType' | 'outputFormat' | 'options'>): DiagramSnapshot {
+  return {
+    source,
+    diagramType,
+    outputFormat,
+    options: JSON.stringify(options),
+  };
+}
+
+function snapshotsMatch(first: DiagramSnapshot | null, second: DiagramSnapshot): boolean {
+  const savedSnapshot = first;
+  if (savedSnapshot === null) return false;
+
+  return savedSnapshot.source === second.source
+    && savedSnapshot.diagramType === second.diagramType
+    && savedSnapshot.outputFormat === second.outputFormat
+    && savedSnapshot.options === second.options;
+}
 
 /**
  * Main editor page component
  */
 export default function HomePage() {
-  // History sidebar state
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // Saved diagrams sidebar state
+  const [myDiagramsOpen, setMyDiagramsOpen] = useState(false);
   const [currentSavedDiagramId, setCurrentSavedDiagramId] = useState<string | null>(null);
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState<DiagramSnapshot | null>(null);
+  const [hasDraftChanges, setHasDraftChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isAuthenticated, isLoading: authIsLoading } = useConvexAuth();
   const { signOut } = useAuthActions();
@@ -56,13 +89,48 @@ export default function HomePage() {
 
   const { saveCurrentDiagram } = useSavedDiagrams();
 
+  const currentSnapshot = useMemo(() => createDiagramSnapshot({
+    source,
+    diagramType,
+    outputFormat,
+    options,
+  }), [diagramType, options, outputFormat, source]);
+
+  const hasUnsavedChanges = useMemo(() => {
+    if (currentSavedDiagramId) {
+      return !snapshotsMatch(lastSavedSnapshot, currentSnapshot);
+    }
+
+    return hasDraftChanges && source.trim().length > 0;
+  }, [currentSavedDiagramId, currentSnapshot, hasDraftChanges, lastSavedSnapshot, source]);
+
+  const handleSourceChange = useCallback((nextSource: string) => {
+    setHasDraftChanges(true);
+    setSource(nextSource);
+  }, [setSource]);
+
+  const handleDiagramTypeChange = useCallback((nextDiagramType: typeof diagramType) => {
+    setHasDraftChanges(true);
+    setDiagramType(nextDiagramType);
+  }, [setDiagramType]);
+
+  const handleOutputFormatChange = useCallback((nextOutputFormat: typeof outputFormat) => {
+    setHasDraftChanges(true);
+    setOutputFormat(nextOutputFormat);
+  }, [setOutputFormat]);
+
+  const handleOptionsChange = useCallback((nextOptions: typeof options) => {
+    setHasDraftChanges(true);
+    setOptions(nextOptions);
+  }, [setOptions]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Ctrl/Cmd + H to toggle history
+      // Ctrl/Cmd + H to toggle My Diagrams
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
         e.preventDefault();
-        setHistoryOpen(prev => !prev);
+        setMyDiagramsOpen(prev => !prev);
       }
     };
 
@@ -70,7 +138,15 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
-  // Handle load diagram from history
+  useEffect(() => {
+    if (!authIsLoading && !isAuthenticated) {
+      setCurrentSavedDiagramId(null);
+      setLastSavedSnapshot(null);
+      setMyDiagramsOpen(false);
+    }
+  }, [authIsLoading, isAuthenticated]);
+
+  // Handle manual save to Convex-backed My Diagrams
   const handleSaveDiagram = useCallback(async () => {
     if (!isAuthenticated) {
       router.push('/login');
@@ -92,6 +168,8 @@ export default function HomePage() {
         options,
       }, currentSavedDiagramId);
       setCurrentSavedDiagramId(saved.id);
+      setLastSavedSnapshot(createDiagramSnapshot(saved));
+      setHasDraftChanges(false);
       toast.success(currentSavedDiagramId ? 'Diagram updated' : 'Diagram saved');
     } catch (error) {
       console.error('Failed to save diagram:', error);
@@ -101,13 +179,40 @@ export default function HomePage() {
     }
   }, [currentSavedDiagramId, diagramType, isAuthenticated, options, outputFormat, router, saveCurrentDiagram, source]);
 
-  const handleLoadDiagram = (diagram: SavedDiagram) => {
+  const handleLogout = useCallback(async () => {
+    setCurrentSavedDiagramId(null);
+    setLastSavedSnapshot(null);
+    setHasDraftChanges(source.trim().length > 0);
+    setMyDiagramsOpen(false);
+    await signOut();
+  }, [signOut, source]);
+
+  const handleLoadDiagram = useCallback((diagram: SavedDiagram) => {
+    if (hasUnsavedChanges && currentSavedDiagramId !== diagram.id) {
+      const shouldDiscard = confirm('Discard unsaved changes?');
+      if (!shouldDiscard) {
+        return false;
+      }
+    }
+
     setDiagramType(diagram.diagramType);
     setOutputFormat(diagram.outputFormat);
-    setOptions(diagram.options);
-    setTimeout(() => setSource(diagram.source), 0);
+    setTimeout(() => {
+      setOptions(diagram.options);
+      setSource(diagram.source);
+    }, 0);
     setCurrentSavedDiagramId(diagram.id);
-  };
+    setLastSavedSnapshot(createDiagramSnapshot(diagram));
+    setHasDraftChanges(false);
+    return true;
+  }, [currentSavedDiagramId, hasUnsavedChanges, setDiagramType, setOptions, setOutputFormat, setSource]);
+
+  const handleDeleteCurrentDiagram = useCallback((id: string) => {
+    if (id !== currentSavedDiagramId) return;
+    setCurrentSavedDiagramId(null);
+    setLastSavedSnapshot(null);
+    setHasDraftChanges(true);
+  }, [currentSavedDiagramId]);
 
   return (
     <main className="h-full flex flex-col bg-gray-50 dark:bg-gray-950">
@@ -149,7 +254,7 @@ export default function HomePage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => void signOut()}
+                  onClick={() => void handleLogout()}
                   className="btn-secondary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
                   data-testid="header-logout-button"
                 >
@@ -165,26 +270,27 @@ export default function HomePage() {
                 Login to save
               </Link>
             )}
-            <FormatSelector
-              value={outputFormat}
-              onChange={setOutputFormat}
-              supportedFormats={supportedFormats}
-            />
-            <DiagramTypeSelector
-              value={diagramType}
-              onChange={setDiagramType}
-            />
-            {/* History button - hidden on mobile, shown on md+ */}
+              <FormatSelector
+                value={outputFormat}
+                onChange={handleOutputFormatChange}
+                supportedFormats={supportedFormats}
+              />
+              <DiagramTypeSelector
+                value={diagramType}
+                onChange={handleDiagramTypeChange}
+              />
+            {/* My Diagrams button - hidden on mobile, shown on md+ */}
             <button
-              onClick={() => setHistoryOpen(true)}
+              onClick={() => setMyDiagramsOpen(true)}
               className="hidden md:flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="Open history (Ctrl+H)"
-              title="History (Ctrl+H)"
+              aria-label="Open My Diagrams (Ctrl+H)"
+              title="My Diagrams (Ctrl+H)"
+              data-testid="my-diagrams-open-button"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4m4 4h6" />
               </svg>
-              <span>History</span>
+              <span>My Diagrams</span>
             </button>
           </div>
         </div>
@@ -198,13 +304,14 @@ export default function HomePage() {
           rightTitle="Diagram Preview"
           leftAction={
             <button
-              onClick={() => setHistoryOpen(true)}
+              onClick={() => setMyDiagramsOpen(true)}
               className="md:hidden w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              aria-label="Open history"
-              title="History"
+              aria-label="Open My Diagrams"
+              title="My Diagrams"
+              data-testid="my-diagrams-open-button-mobile"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4m4 4h6" />
               </svg>
             </button>
           }
@@ -213,7 +320,7 @@ export default function HomePage() {
               <div className="flex-1 min-h-0 overflow-hidden">
                 <DiagramEditor
                   value={source}
-                  onChange={setSource}
+                  onChange={handleSourceChange}
                   language={editorLanguage}
                   theme="vs-dark"
                 />
@@ -222,7 +329,7 @@ export default function HomePage() {
                 <DiagramOptions
                   diagramType={diagramType}
                   options={options}
-                  onChange={setOptions}
+                  onChange={handleOptionsChange}
                 />
               </div>
             </div>
@@ -271,11 +378,13 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* History Sidebar */}
-      <DiagramHistory
-        isOpen={historyOpen}
-        onClose={() => setHistoryOpen(false)}
+      {/* My Diagrams Sidebar */}
+      <MyDiagramsSidebar
+        isOpen={myDiagramsOpen}
+        onClose={() => setMyDiagramsOpen(false)}
         onLoad={handleLoadDiagram}
+        currentSavedDiagramId={currentSavedDiagramId}
+        onDeleteCurrent={handleDeleteCurrentDiagram}
       />
     </main>
   );

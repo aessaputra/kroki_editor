@@ -8,4 +8,4 @@ export { DiagramTypeSelector } from './DiagramTypeSelector';
 export { DiagramOptions } from './DiagramOptions';
 export { FormatSelector } from './FormatSelector';
 export { SplitPane } from './SplitPane';
-export { DiagramHistory } from './DiagramHistory';
+export { MyDiagramsSidebar } from './DiagramHistory';

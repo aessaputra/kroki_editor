@@ -1,0 +1,11 @@
+Task: auth-gated-diagram-ui
+Timestamp: 2026-04-25T10:48:55.054Z
+Scenario: authenticated My Diagrams save/list/rename/load/delete-current CRUD.
+Signed up authenticated account task6-1777114127462@example.test and reached editor.
+Saved first diagram and renamed it to "Task 6 Alpha 1777114127462" through My Diagrams.
+Created second Convex-backed diagram "Task 6 Beta 1777114127462" via authenticated local Convex runtime (k1768s0e...).
+My Diagrams showed 2 saved diagrams for the authenticated user.
+Loaded second diagram "Task 6 Beta 1777114127462" and editor text matched beta marker.
+Delete-current dialog message: Delete "Task 6 Alpha 1777114127462"?
+Deleted currently loaded "Task 6 Alpha 1777114127462"; list count is 1 and editor still contains alpha marker as unsaved content.
+Result: PASS

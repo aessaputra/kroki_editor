@@ -8,6 +8,9 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useAuthActions } from '@convex-dev/auth/react';
+import { useConvexAuth } from 'convex/react';
+import Link from 'next/link';
 import { useDiagramEditor } from '@/hooks/useDiagramEditor';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useDiagramStorage } from '@/hooks/useDiagramStorage';
@@ -28,6 +31,8 @@ import type { SavedDiagram } from '@/types';
 export default function HomePage() {
   // History sidebar state
   const [historyOpen, setHistoryOpen] = useState(false);
+  const { isAuthenticated, isLoading: authIsLoading } = useConvexAuth();
+  const { signOut } = useAuthActions();
 
   // Use the diagram editor hook for all state management
   const {
@@ -108,6 +113,33 @@ export default function HomePage() {
 
           {/* Controls - responsive layout */}
           <div className="flex items-center gap-1.5 sm:gap-3">
+            {authIsLoading ? (
+              <span className="hidden sm:inline-flex badge" data-testid="auth-loading-state">
+                Checking account...
+              </span>
+            ) : isAuthenticated ? (
+              <div className="flex items-center gap-1.5 sm:gap-2" data-testid="authenticated-header-state">
+                <span className="hidden sm:inline-flex badge-accent">
+                  Signed in
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  className="btn-secondary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
+                  data-testid="header-logout-button"
+                >
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="btn-primary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
+                data-testid="login-to-save-link"
+              >
+                Login to save
+              </Link>
+            )}
             <FormatSelector
               value={outputFormat}
               onChange={setOutputFormat}

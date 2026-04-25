@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,40 +31,41 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
-        suppressHydrationWarning
-      >
-        {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-              fontSize: '14px',
-            },
-            success: {
-              iconTheme: {
-                primary: '#4ade80',
-                secondary: '#fff',
+    <ConvexAuthNextjsServerProvider>
+      <html lang="en" className="h-full" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
+          suppressHydrationWarning
+        >
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+                fontSize: '14px',
               },
-            },
-            error: {
-              duration: 5000,
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
+              success: {
+                iconTheme: {
+                  primary: '#4ade80',
+                  secondary: '#fff',
+                },
               },
-            },
-          }}
-        />
-      </body>
-    </html>
+              error: {
+                duration: 5000,
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+        </body>
+      </html>
+    </ConvexAuthNextjsServerProvider>
   );
 }
-
 
 

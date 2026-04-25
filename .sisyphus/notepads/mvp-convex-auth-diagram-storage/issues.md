@@ -12,3 +12,17 @@
 ## 2026-04-25 Task: ai-owner-removal
 - `npm run lint` still fails due to pre-existing React hook rule violations in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; this cleanup did not add new lint errors.
 - `package-lock.json` still contains transitive `jose` and `nodemailer` entries through `@auth/core`, which is expected and should not be stripped in this task.
+
+## 2026-04-25 Task: auth-provider-ui
+- `npx @convex-dev/auth` could not be used because it requires a clean working tree; manual setup plus `CONVEX_AGENT_MODE=anonymous npx convex dev --once` was used instead.
+- Playwright MCP still expects Chrome at `/opt/google/chrome/chrome`; bundled Chromium only worked through a direct Playwright script after `npx playwright install chromium` and `npx playwright install-deps chromium`.
+- `npm run lint` remains red only for pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; auth-provider-ui changes added no new lint errors.
+
+## 2026-04-25 Task: auth-provider-ui
+- Atlas QA caught that form visibility was not enough: `/api/auth` must be covered by a real signup/logout browser smoke.
+- The local anonymous Convex deployment needs `JWT_PRIVATE_KEY` and `JWKS` set outside git; do not commit generated key material to `.env.local.example` or evidence.
+- `NEXT_PUBLIC_CONVEX_SITE_URL=` belongs in `.env.local.example` as a placeholder because `convex dev` writes it during local setup.
+
+## 2026-04-25 Task: convex-diagrams
+- `CONVEX_AGENT_MODE=anonymous npx convex dev --once` was blocked because a local backend is already running on port 3210; `npx convex codegen` was used instead and completed successfully.
+- Convex MCP startup command `npx -y convex@latest mcp start --project-dir /home/coder/dev/kroki_editor` completed with no stdout/stderr output, so evidence records command completion but no deployment/banner details.

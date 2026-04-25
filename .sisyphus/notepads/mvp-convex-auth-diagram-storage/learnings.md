@@ -19,3 +19,24 @@
 - Removing the AI/owner subsystems left the editor shell intact; the only remaining `jose`/`nodemailer` mentions are transitive in `package-lock.json` via `@auth/core`.
 - `npm uninstall lottie-react nodemailer @types/nodemailer jose` successfully rewrote `package-lock.json` and removed the direct runtime dependencies from `package.json`.
 - `npm run type-check` and `npm run test -- --passWithNoTests` passed after the cleanup.
+
+## 2026-04-25 Task: auth-provider-ui
+- `CONVEX_AGENT_MODE=anonymous npx convex dev --once` successfully created local Convex generated files and `.env.local` for the headless workspace.
+- `npx @convex-dev/auth` refused to run because the working tree had uncommitted changes, so the Convex Auth setup was added manually from the docs: `convex/auth.ts`, `convex/auth.config.ts`, `convex/http.ts`, and `convex/schema.ts`.
+- Convex Auth password-only MVP uses `providers: [Password]`; omitting `verify` and `reset` keeps email verification and password reset flows absent.
+- Next App Router wiring uses `ConvexAuthNextjsServerProvider` in `layout.tsx` and a client `ConvexAuthNextjsProvider` with `ConvexReactClient` created at module scope.
+- Playwright smoke verified guest `/` shows `Login to save`, `/login` shows email/password controls, and `/owner` returns 404 with no forbidden owner/auth terms.
+
+## 2026-04-25 Task: auth-provider-ui
+- Next 16 uses `proxy.ts` instead of the older `middleware.ts` convention; `src/proxy.ts` with `convexAuthNextjsMiddleware()` is required for Convex Auth to handle `/api/auth`.
+- Without the proxy, Convex Auth client posts to `/api/auth` and receives Next's 404 HTML, producing `Unexpected token '<', "<!DOCTYPE "... is not valid JSON` in the login UI.
+- The Next production build prints `ƒ Proxy (Middleware)` when `src/proxy.ts` is detected correctly.
+- Manual Convex Auth setup also needs deployment env vars `JWT_PRIVATE_KEY` and `JWKS`; the missing private key caused `/api/auth` to return JSON 400 until local anonymous Convex env vars were set.
+- A successful real smoke signs up with a unique email/password, lands on `/`, shows authenticated header/logout, then logout restores the guest `Login to save` CTA.
+
+## 2026-04-25 Task: convex-diagrams
+- The diagrams schema should preserve `...authTables` and add `diagrams` beside it; no app-level `users` table is needed for this MVP because `identity.tokenIdentifier` is sufficient ownership state.
+- The Convex list-by-owner/newest-first pattern is an index over `['ownerTokenIdentifier', 'updatedAt']` plus `.withIndex(...eq(ownerTokenIdentifier))` and `.order('desc')`.
+- `npx convex codegen` successfully regenerated Convex bindings and included the new `diagrams` module in `convex/_generated/api.d.ts`.
+- Vitest is installed, but there are still no test files or Convex runtime test harness in the repo; `npm run test -- --passWithNoTests` passes as an empty suite.
+- Runtime Convex QA is viable after Playwright browser signup by extracting the Convex Auth JWT from localStorage for `http://127.0.0.1:3210` and passing it to `ConvexHttpClient`.

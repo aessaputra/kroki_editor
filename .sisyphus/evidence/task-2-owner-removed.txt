@@ -1,0 +1,72 @@
+Task: auth-provider-ui
+Timestamp: 2026-04-25
+
+Runtime setup:
+- `CONVEX_AGENT_MODE=anonymous npx convex dev` started local Convex.
+- `npm run dev` started Next.js at `http://localhost:3000`.
+
+Smoke command:
+```sh
+node - <<'NODE'
+const { chromium } = require('@playwright/test');
+// Navigates to /owner, records response status/body sample, checks forbidden auth terms,
+// and screenshots the 404 page.
+NODE
+```
+
+Result:
+```json
+{
+  "ownerUrl": "http://localhost:3000/owner",
+  "ownerStatus": 404,
+  "ownerHasForbiddenTerms": false,
+  "ownerBodySample": "404 This page could not be found."
+}
+```
+
+Forbidden terms checked in rendered /owner body:
+- `OWNER_SECRET_KEY`
+- `OWNER_EMAIL`
+- `pending_otp`
+- `owner_token`
+- `OTP`
+- `magic link`
+- `OAuth`
+- `password reset`
+
+Screenshot evidence:
+- `.sisyphus/evidence/task-2-owner-removed.png`
+
+Verification:
+- `npm run type-check` passed.
+- `npm run test -- --passWithNoTests` passed with no test files present.
+- `npm run build` passed.
+- `npm run lint` still fails on pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; task changes did not add lint errors.
+
+## 2026-04-25 Fix verification after adding Convex Auth proxy
+
+Smoke command summary:
+```sh
+node - <<'NODE'
+const { chromium } = require('@playwright/test');
+// Navigate to /owner after adding src/proxy.ts and verify it remains a 404
+// with no forbidden owner/auth terms in rendered body text.
+NODE
+```
+
+Result:
+```json
+{
+  "ownerUrl": "http://127.0.0.1:3000/owner",
+  "ownerStatus": 404,
+  "ownerHasForbiddenTerms": false,
+  "ownerBodySample": "404 This page could not be found."
+}
+```
+
+Screenshot evidence updated:
+- `.sisyphus/evidence/task-2-owner-removed.png`
+
+Post-fix verification:
+- `npm run build` passed and reported `ƒ Proxy (Middleware)` while `/owner` still returned 404.
+- Forbidden-term scan found no owner/OTP/OAuth/reset terms in `src` or `convex` TypeScript files.

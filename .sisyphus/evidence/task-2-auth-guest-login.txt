@@ -1,0 +1,88 @@
+Task: auth-provider-ui
+Timestamp: 2026-04-25
+
+Runtime setup:
+- `CONVEX_AGENT_MODE=anonymous npx convex dev` started local Convex at `NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210`.
+- `npm run dev` started Next.js at `http://localhost:3000`.
+
+Browser tooling notes:
+- Playwright MCP initially failed because Chrome was missing at `/opt/google/chrome/chrome`.
+- `npx playwright install chrome` failed due an apt dependency conflict.
+- `npx playwright install chromium` plus `npx playwright install-deps chromium` succeeded, enabling the bundled Chromium smoke test.
+
+Smoke command:
+```sh
+node - <<'NODE'
+const { chromium } = require('@playwright/test');
+// Navigates to /, waits for [data-testid="login-to-save-link"], screenshots guest state,
+// clicks through to /login, and waits for email/password form controls.
+NODE
+```
+
+Result:
+```json
+{
+  "homeUrl": "http://localhost:3000/",
+  "homeHasLoginToSave": true,
+  "homeHasLogout": false,
+  "loginUrl": "http://localhost:3000/login",
+  "loginFormVisible": true,
+  "emailInputVisible": true,
+  "passwordInputVisible": true,
+  "submitVisible": true
+}
+```
+
+Screenshot evidence:
+- `.sisyphus/evidence/task-2-auth-guest-login.png`
+
+Verification:
+- `npm run type-check` passed.
+- `npm run test -- --passWithNoTests` passed with no test files present.
+- `npm run build` passed.
+- `npm run lint` still fails on pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; task changes did not add lint errors.
+
+## 2026-04-25 Fix verification: real signup/logout smoke
+
+Regression observed before fix:
+- Browser signup posted to `http://127.0.0.1:3000/api/auth` and received `404`, causing the login page to show `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+
+Fix applied:
+- Added `src/proxy.ts` using `convexAuthNextjsMiddleware()` with the Next 16 proxy convention so `/api/auth` is proxied to Convex Auth.
+- Set local anonymous Convex deployment env vars `JWT_PRIVATE_KEY` and `JWKS` for the smoke run because `npx @convex-dev/auth` could not run on an uncommitted working tree.
+- Added `NEXT_PUBLIC_CONVEX_SITE_URL=` placeholder to `.env.local.example` for repeatable local Convex setup.
+
+Smoke command summary:
+```sh
+node - <<'NODE'
+const { chromium } = require('@playwright/test');
+// Open /login, toggle to sign up, fill a unique email/password, submit,
+// wait for /, assert authenticated header + logout, click logout,
+// then assert guest Login to save state.
+NODE
+```
+
+Sanitized result:
+```json
+{
+  "signupEmailPattern": "task2-<timestamp>@example.com",
+  "afterSignupUrl": "http://127.0.0.1:3000/",
+  "authenticatedHeaderVisible": true,
+  "logoutVisible": true,
+  "afterLogoutUrl": "http://127.0.0.1:3000/",
+  "guestLoginVisibleAfterLogout": true,
+  "apiAuthStatuses": [200, 200, 200],
+  "apiAuthContentType": "application/json"
+}
+```
+
+Screenshot evidence updated after successful signup:
+- `.sisyphus/evidence/task-2-auth-guest-login.png`
+
+Post-fix verification:
+- `lsp_diagnostics` found no diagnostics in `src/proxy.ts`, `src/app/login/page.tsx`, `src/app/page.tsx`, or `src/app/layout.tsx`.
+- Forbidden-term scan found no `OWNER_SECRET_KEY`, `OWNER_EMAIL`, `pending_otp`, `owner_token`, `OTP`, `magic link`, `OAuth`, or `password reset` matches in `src` or `convex` TypeScript files.
+- `npm run type-check` passed.
+- `npm run test -- --passWithNoTests` passed with no test files present.
+- `npm run build` passed and reported `ƒ Proxy (Middleware)`, confirming Next 16 picked up `src/proxy.ts`.
+- `npm run lint` remains red only for pre-existing `react-hooks/set-state-in-effect` errors in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`, plus existing/generated warnings; this fix added no lint errors.

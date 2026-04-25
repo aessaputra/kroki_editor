@@ -179,7 +179,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `chore(setup): add convex auth and test foundation` | Files: `package.json`, `package-lock.json`, `vitest.config.ts`, `tests/setup.ts`, `playwright.config.ts`, `.env.local.example`
 
-- [ ] 2. Add Convex Provider and Email/Password Auth UI
+- [x] 2. Add Convex Provider and Email/Password Auth UI
 
   **What to do**: Wire Convex at the Next.js root using a client provider component created at module scope. Replace plain Convex provider with Convex Auth provider per Convex Auth setup. Add a dedicated `/login` route for local MVP signup/login using Convex Auth email/password. Add header auth controls on `/`: guest sees “Login to save”; authenticated user sees account state and logout. Logout must be available without navigating to an owner page. Use a combined login/signup UI if Convex Auth supports it; otherwise use two explicit tabs/buttons on `/login`. Email verification, password reset, OTP, magic link, and OAuth must be absent.
   **Must NOT do**: Do not implement custom password hashing, JWT cookies, email sending, or owner secret keys. Do not add `/owner` compatibility redirects.
@@ -223,7 +223,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `feat(auth): add convex email password login` | Files: `src/app/layout.tsx`, `src/app/ConvexClientProvider.tsx`, `src/app/login/**`, auth-related Convex files
 
-- [ ] 3. Create Convex Diagram Schema and Ownership-Protected Functions
+- [x] 3. Create Convex Diagram Schema and Ownership-Protected Functions
 
   **What to do**: Add Convex schema for saved diagrams and implement authenticated functions. Use `ownerTokenIdentifier: identity.tokenIdentifier` as the MVP owner key. Minimal table fields: `title`, `source`, `diagramType`, `outputFormat`, `options`, `ownerTokenIdentifier`, `createdAt`, `updatedAt`. Add indexes for listing by owner and updated time. Implement queries `listMyDiagrams`, `getMyDiagram`; mutations `createDiagram`, `updateDiagram`, `renameDiagram`, `deleteDiagram`. Every function must call `ctx.auth.getUserIdentity()` and reject unauthenticated users. Every id-based function must fetch the diagram and verify `diagram.ownerTokenIdentifier === identity.tokenIdentifier` before returning or mutating. Use clear errors: `Not authenticated`, `Diagram not found`, `Unauthorized`.
   **Must NOT do**: Do not accept client-provided `userId`/owner id. Do not create a parallel `users` table unless Convex Auth docs require it for the chosen setup. Do not add sharing/public visibility fields.

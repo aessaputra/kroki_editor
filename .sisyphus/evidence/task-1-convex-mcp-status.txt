@@ -1,0 +1,3 @@
+Command: npx -y convex@latest mcp start --project-dir /home/coder/dev/kroki_editor
+--- output ---
+[1G[0K⠙[1G[0K⠹[1G[0K⠸[1G[0K[1G[0K⠙[1G[0Kexit_code=0

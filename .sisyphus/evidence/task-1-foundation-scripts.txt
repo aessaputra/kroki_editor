@@ -1,0 +1,127 @@
+2026-04-25T09:34:52Z
+--- npm pkg get scripts ---
+{
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint",
+  "type-check": "tsc --noEmit",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "test:e2e": "playwright test"
+}
+--- npm run type-check ---
+
+> kroki_frontend@0.1.0 type-check
+> tsc --noEmit
+
+--- npm run lint ---
+
+> kroki_frontend@0.1.0 lint
+> eslint
+
+
+/home/coder/dev/kroki_editor/src/app/api/ai/fix/route.ts
+  80:15  warning  'systemPrompt' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/coder/dev/kroki_editor/src/app/api/ai/revise/route.ts
+  37:40  warning  'diagramType' is defined but never used            @typescript-eslint/no-unused-vars
+  75:15  warning  'systemPrompt' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/coder/dev/kroki_editor/src/app/owner/page.tsx
+  35:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+
+/home/coder/dev/kroki_editor/src/app/page.tsx
+  107:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/components/AIGenerateModal.tsx
+  150:17  error    'body' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                          prefer-const
+  261:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  349:37  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/components/DiagramHistory.tsx
+  111:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  121:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  143:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/coder/dev/kroki_editor/src/components/DiagramPreview.tsx
+  38:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/coder/dev/kroki_editor/src/components/DiagramPreview.tsx:38:13
+  36 |     useEffect(() => {
+  37 |         if (imageUrl) {
+> 38 |             setKey(prev => prev + 1);
+     |             ^^^^^^ Avoid calling setState() directly within an effect
+  39 |             setHasError(false);
+  40 |             setIsLoading(true);
+  41 |         }  react-hooks/set-state-in-effect
+
+/home/coder/dev/kroki_editor/src/components/DiagramTypeSelector.tsx
+  36:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/components/FormatSelector.tsx
+  31:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/hooks/useDiagramEditor.ts
+  73:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/coder/dev/kroki_editor/src/hooks/useDiagramEditor.ts:73:9
+  71 |     useEffect(() => {
+  72 |         const template = DEFAULT_TEMPLATES[diagramType];
+> 73 |         setSource(template);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  74 |         // Reset options when changing diagram type
+  75 |         setOptions({});
+  76 |     }, [diagramType]);  react-hooks/set-state-in-effect
+  81:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/coder/dev/kroki_editor/src/hooks/useDiagramEditor.ts:81:13
+  79 |     useEffect(() => {
+  80 |         if (!supportedFormats.includes(outputFormat)) {
+> 81 |             setOutputFormat(supportedFormats[0]);
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  82 |         }
+  83 |     }, [supportedFormats, outputFormat]);
+  84 |                  react-hooks/set-state-in-effect
+
+/home/coder/dev/kroki_editor/src/hooks/useDiagramStorage.ts
+   47:16  warning  '_' is defined but never used                        @typescript-eslint/no-unused-vars
+  126:11  warning  'pinnedDiagrams' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/coder/dev/kroki_editor/src/types/options.ts
+  121:35  warning  'diagramType' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 19 problems (4 errors, 15 warnings)
+  1 error and 1 warning potentially fixable with the `--fix` option.
+
+--- npm run test -- --passWithNoTests ---
+
+> kroki_frontend@0.1.0 test
+> vitest run --passWithNoTests
+
+
+ RUN  v3.2.4 /home/coder/dev/kroki_editor
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
+

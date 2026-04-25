@@ -456,7 +456,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `test(mvp): cover auth gated diagram storage` | Files: `tests/**`, `e2e/**` or `*.spec.ts`, UI files with test IDs
 
-- [ ] 8. Final Cleanup, Dependency Prune, and Build Verification
+- [x] 8. Final Cleanup, Dependency Prune, and Build Verification
 
   **What to do**: Run project-wide cleanup after all refactors. Remove unused files, exports, dependencies, env examples, comments, and docs referring to IndexedDB, auto-save, AI, AnythingLLM, owner auth, OTP, SMTP, JWT, or single-owner access. Ensure `README.md` no longer describes create-next-app defaults only if implementation chooses to update docs; at minimum add local MVP setup notes somewhere appropriate if README is touched. Run install/prune as needed so lockfile matches package. Verify no stale imports remain.
   **Must NOT do**: Do not add production rollout docs beyond local MVP prerequisites. Do not create additional feature docs outside explicit local setup notes.

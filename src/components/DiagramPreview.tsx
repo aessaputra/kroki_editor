@@ -6,7 +6,7 @@
  * Enhanced preview with loading state, URL display, and download functionality.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { OutputFormat, getFileExtension } from '@/types';
 
 /**
@@ -27,24 +27,23 @@ interface DiagramPreviewProps {
  * Preview component for rendered diagrams
  */
 export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'diagram', outputFormat = 'svg' }: DiagramPreviewProps) {
-    const [key, setKey] = useState(0);
-    const [hasError, setHasError] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadedUrl, setLoadedUrl] = useState('');
+    const [errorUrl, setErrorUrl] = useState('');
     const [showUrlCopied, setShowUrlCopied] = useState(false);
 
-    // Reset key when URL changes to force iframe reload
-    useEffect(() => {
-        if (imageUrl) {
-            setKey(prev => prev + 1);
-            setHasError(false);
-            setIsLoading(true);
-        }
-    }, [imageUrl]);
+    const hasError = imageUrl !== '' && errorUrl === imageUrl;
+    const isLoading = imageUrl !== '' && loadedUrl !== imageUrl && !hasError;
 
     // Handle iframe load
     const handleLoad = useCallback(() => {
-        setIsLoading(false);
-    }, []);
+        setLoadedUrl(imageUrl);
+        setErrorUrl('');
+    }, [imageUrl]);
+
+    const handleError = useCallback(() => {
+        setErrorUrl(imageUrl);
+        setLoadedUrl('');
+    }, [imageUrl]);
 
     // Handle copy URL
     const handleCopyUrl = useCallback(async () => {
@@ -241,12 +240,12 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
 
                 {/* Iframe for SVG rendering */}
                 <iframe
-                    key={key}
+                    key={imageUrl}
                     src={imageUrl}
                     title="Diagram preview"
                     className="w-full h-full border-0"
                     onLoad={handleLoad}
-                    onError={() => setHasError(true)}
+                    onError={handleError}
                     style={{
                         backgroundColor: 'transparent',
                     }}

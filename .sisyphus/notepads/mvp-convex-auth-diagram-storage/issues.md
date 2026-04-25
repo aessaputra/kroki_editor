@@ -38,3 +38,6 @@
 ## 2026-04-25 Task: mvp-test-coverage
 - A raw `/AI/i` rendered-text absence assertion is too broad because it matches the `ai` in ordinary words like `Diagram`; use removed UI phrases such as `Generate with AI` and `AnythingLLM` instead.
 - Convex MCP startup command again completed with no stdout/stderr output, so evidence records command completion but no deployment/banner details.
+
+## 2026-04-25 Task: final-cleanup
+- `npm uninstall` reported 6 existing audit vulnerabilities after dependency pruning; Task 8 scope did not run broad audit fixes because that would change unrelated dependency versions.

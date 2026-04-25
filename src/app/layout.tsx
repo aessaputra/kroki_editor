@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Kroki Diagram Editor",
-  description: "A pure client-side diagram editor for Kroki. Create and preview PlantUML, Mermaid, Graphviz, and more diagrams in real-time.",
+  description: "Create, preview, and manually save Kroki diagrams with Convex-backed storage.",
   keywords: ["kroki", "diagram", "plantuml", "mermaid", "graphviz", "editor"],
   icons: {
     icon: "/assets/favicon.png",
@@ -67,5 +67,4 @@ export default function RootLayout({
     </ConvexAuthNextjsServerProvider>
   );
 }
-
 

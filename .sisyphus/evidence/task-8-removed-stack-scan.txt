@@ -1,0 +1,23 @@
+Task 8 removed-stack scan
+Sat Apr 25 11:10:49 AM UTC 2026
+
+Scanned paths: package.json package-lock.json README.md .env.local.example src tests convex
+Terms: idb-keyval, IndexedDB, Auto-saved, AnythingLLM, /api/ai, AIGenerate, Owner Access, OWNER_, SMTP_, JWT_SECRET, owner_token, pending_otp, nodemailer, jose
+
+===== direct dependency check =====
+kroki_frontend@0.1.0 /home/coder/dev/kroki_editor
+└── (empty)
+
+
+===== exact term scan =====
+package-lock.json:88:        "jose": "^5.9.3",
+package-lock.json:96:        "nodemailer": "^6.8.0"
+package-lock.json:105:        "nodemailer": {
+package-lock.json:110:    "node_modules/@auth/core/node_modules/jose": {
+package-lock.json:112:      "resolved": "https://registry.npmjs.org/jose/-/jose-5.10.0.tgz",
+package-lock.json:377:        "jose": "^5.2.2",
+package-lock.json:412:    "node_modules/@convex-dev/auth/node_modules/jose": {
+package-lock.json:414:      "resolved": "https://registry.npmjs.org/jose/-/jose-5.10.0.tgz",
+
+===== remaining allowed lockfile references =====
+Only package-lock.json retains auth transitive metadata: jose is required by @auth/core and @convex-dev/auth; nodemailer appears only as optional @auth/core peer metadata. No direct package.json dependency or source/doc/env references remain for the removed stack terms.

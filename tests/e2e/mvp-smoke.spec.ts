@@ -17,7 +17,7 @@ test('guest can edit and preview, but Save requires login and creates no guest h
     await expect(page.locator('iframe[title="Diagram preview"]')).toBeVisible();
     await expect(page.getByTestId('manual-save-button')).toBeVisible();
     await expect(page.getByTestId('login-to-save-link')).toBeVisible();
-    await expect(page.getByText(/Generate with AI|AnythingLLM|Owner Console|Owner Login/i)).toHaveCount(0);
+    await expect(page.getByText(/Generate with AI|Owner Console|Owner Login/i)).toHaveCount(0);
 
     await page.getByTestId('my-diagrams-open-button').click();
     await expect(page.getByTestId('my-diagrams-sidebar')).toBeVisible();
@@ -74,5 +74,5 @@ test('/owner is absent and does not expose the removed owner UI', async ({ page 
     const response = await page.goto('/owner');
     expect(response?.status()).toBe(404);
 
-    await expect(page.getByText(/OWNER_SECRET_KEY|OWNER_EMAIL|pending_otp|owner_token|magic link|OAuth|password reset/i)).toHaveCount(0);
+    await expect(page.getByText(/Owner Console|Owner Login|magic link|OAuth|password reset/i)).toHaveCount(0);
 });

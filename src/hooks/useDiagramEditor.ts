@@ -5,7 +5,7 @@
  * Encapsulates all editor state and logic following Clean Code principles.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useDebounce } from './useDebounce';
 import { buildKrokiUrl } from '@/lib/kroki';
 import { DiagramType, OutputFormat, DEFAULT_TEMPLATES, DIAGRAM_TYPES, getSupportedFormats } from '@/types';
@@ -53,7 +53,7 @@ export function useDiagramEditor(
     initialDiagramType: DiagramType = 'plantuml'
 ): UseDiagramEditorReturn {
     // State management
-    const [source, setSource] = useState<string>('');
+    const [source, setSource] = useState<string>(() => DEFAULT_TEMPLATES[initialDiagramType]);
     const [diagramType, setDiagramType] = useState<DiagramType>(initialDiagramType);
     const [options, setOptions] = useState<Record<string, string | number | boolean>>({});
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('svg');
@@ -67,20 +67,16 @@ export function useDiagramEditor(
     // Get supported formats for current diagram type
     const supportedFormats = useMemo(() => getSupportedFormats(diagramType), [diagramType]);
 
-    // Initialize source with default template when diagram type changes
-    useEffect(() => {
-        const template = DEFAULT_TEMPLATES[diagramType];
-        setSource(template);
-        // Reset options when changing diagram type
-        setOptions({});
-    }, [diagramType]);
+    const updateDiagramType = useCallback((type: DiagramType) => {
+        const formats = getSupportedFormats(type);
 
-    // Reset output format if current format is not supported by new diagram type
-    useEffect(() => {
-        if (!supportedFormats.includes(outputFormat)) {
-            setOutputFormat(supportedFormats[0]);
-        }
-    }, [supportedFormats, outputFormat]);
+        setDiagramType(type);
+        setSource(DEFAULT_TEMPLATES[type]);
+        setOptions({});
+        setOutputFormat((currentFormat) => (
+            formats.includes(currentFormat) ? currentFormat : formats[0]
+        ));
+    }, []);
 
     // Generate Kroki URL from debounced source, format, and options
     const imageUrl = useMemo(() => {
@@ -100,7 +96,7 @@ export function useDiagramEditor(
         source,
         setSource,
         diagramType,
-        setDiagramType,
+        setDiagramType: updateDiagramType,
         imageUrl,
         editorLanguage,
         isUpdating,

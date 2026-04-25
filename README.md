@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kroki Diagram Editor
 
-## Getting Started
+A local Next.js editor for creating and previewing Kroki diagrams. Guests can edit and preview diagrams in memory; signed-in users can manually save, list, load, rename, and delete diagrams through Convex-backed storage.
 
-First, run the development server:
+## Local setup
+
+1. Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Copy the example environment file and fill the local Convex values:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Start Convex and the Next.js app in separate terminals:
 
-## Learn More
+```bash
+npx convex dev
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) to use the editor.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See `.env.local.example` for the local variables used by the app and E2E tests:
 
-## Deploy on Vercel
+- `NEXT_PUBLIC_CONVEX_URL`
+- `NEXT_PUBLIC_CONVEX_SITE_URL`
+- `CONVEX_DEPLOYMENT`
+- `E2E_TEST_EMAIL`
+- `E2E_TEST_PASSWORD`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Verification
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Run the main checks before handing off changes:
+
+```bash
+npm run type-check
+npm run lint
+npm run test
+npm run build
+```

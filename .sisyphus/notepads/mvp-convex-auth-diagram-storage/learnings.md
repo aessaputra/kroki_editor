@@ -58,3 +58,8 @@
 - Minimal storage unit coverage can stay browser-free by exporting and testing `mapSavedDiagram`, `assertAuthenticated`, and `makeDefaultDiagramTitle` from `useSavedDiagrams`.
 - Playwright E2E should assert the preview iframe element exists rather than waiting inside the Kroki iframe body, keeping the smoke independent of external Kroki frame loading.
 - The local Convex E2E preflight reads `NEXT_PUBLIC_CONVEX_URL` from env or `.env.local`, requires a local URL, and fails with a clear prerequisite message when local Convex is unavailable.
+
+## 2026-04-25 Task: final-cleanup
+- `npm uninstall idb-keyval --legacy-peer-deps` removed the unused direct browser-storage dependency and its lockfile package entry; only auth-related lockfile `jose`/`nodemailer` metadata remains.
+- The `react-hooks/set-state-in-effect` lint failures were fixed by deriving preview loading/error state from the active URL and moving diagram template resets into the diagram-type setter path.
+- The required Task 8 verification suite (`type-check`, `lint`, `test`, `build`) passed; lint still reports warnings only, with no errors.

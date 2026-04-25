@@ -1,2 +1,3 @@
 export { DashboardShell } from './DashboardShell';
-export { DashboardDiagramTable, DashboardDiagramTableSection, formatDiagramTimestamp } from './DashboardDiagramTable';
+export { DashboardDiagramTable, DashboardDiagramTableSection } from './DashboardDiagramTable';
+export { formatDiagramTimestamp } from './dashboardFormat';

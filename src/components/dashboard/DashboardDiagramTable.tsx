@@ -1,9 +1,13 @@
 'use client';
 
-import { Component, type ReactNode, useState } from 'react';
+import { Component, type KeyboardEvent, type MouseEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSavedDiagrams } from '@/hooks/useSavedDiagrams';
 import { DIAGRAM_TYPES, type SavedDiagram } from '@/types';
+import { DashboardDeleteConfirmModal } from './DashboardDeleteConfirmModal';
+import { DashboardDiagramDetail } from './DashboardDiagramDetail';
+import { formatDiagramTimestamp } from './dashboardFormat';
 
 interface DashboardDiagramTableSectionErrorBoundaryProps {
   children: ReactNode;
@@ -18,7 +22,7 @@ interface DashboardDiagramTableProps {
   selectedDiagramId: string | null;
   onSelectDiagram: (diagram: SavedDiagram) => void;
   onEditDiagram?: (diagram: SavedDiagram) => void;
-  onDeleteDiagram?: (diagram: SavedDiagram) => void;
+  onDeleteDiagram?: (diagram: SavedDiagram, triggerButton: HTMLButtonElement) => void;
 }
 
 const diagramTypeLabels = new Map(DIAGRAM_TYPES.map((diagramType) => [diagramType.id, diagramType.label]));
@@ -51,23 +55,89 @@ export function DashboardDiagramTableSection() {
 }
 
 function DashboardDiagramTableSectionContent() {
-  const { diagrams, isLoading } = useSavedDiagrams();
+  const { diagrams, isLoading, deleteDiagram } = useSavedDiagrams();
   const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(null);
+  const [pendingDeleteDiagram, setPendingDeleteDiagram] = useState<SavedDiagram | null>(null);
+  const [hiddenDiagramIds, setHiddenDiagramIds] = useState<Set<string>>(() => new Set());
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeletePending, setIsDeletePending] = useState(false);
+  const deleteTriggerButtonRef = useRef<HTMLButtonElement | null>(null);
+  const router = useRouter();
+
+  const visibleDiagrams = useMemo(() => {
+    return diagrams.filter((diagram) => !hiddenDiagramIds.has(diagram.id));
+  }, [diagrams, hiddenDiagramIds]);
+
+  const selectedDiagram = useMemo(() => {
+    if (visibleDiagrams.length === 0) return null;
+    return visibleDiagrams.find((diagram) => diagram.id === selectedDiagramId) ?? visibleDiagrams[0];
+  }, [visibleDiagrams, selectedDiagramId]);
+
+  const handleOpenDeleteModal = (diagram: SavedDiagram, triggerButton: HTMLButtonElement) => {
+    deleteTriggerButtonRef.current = triggerButton;
+    setDeleteError(null);
+    setPendingDeleteDiagram(diagram);
+  };
+
+  const handleCancelDelete = () => {
+    if (isDeletePending) return;
+    setDeleteError(null);
+    setPendingDeleteDiagram(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDeleteDiagram || isDeletePending) return;
+
+    const deletedDiagramId = pendingDeleteDiagram.id;
+
+    try {
+      setIsDeletePending(true);
+      setDeleteError(null);
+      await deleteDiagram(deletedDiagramId);
+
+      const remainingDiagrams = visibleDiagrams.filter((diagram) => diagram.id !== deletedDiagramId);
+      setHiddenDiagramIds((previousIds) => new Set(previousIds).add(deletedDiagramId));
+      if (selectedDiagramId === deletedDiagramId) {
+        setSelectedDiagramId(remainingDiagrams[0]?.id ?? null);
+      }
+      setPendingDeleteDiagram(null);
+    } catch (error) {
+      console.error('Error deleting dashboard diagram:', error);
+      setDeleteError('Failed to delete diagram. The diagram was not deleted. Please try again.');
+    } finally {
+      setIsDeletePending(false);
+    }
+  };
 
   if (isLoading) {
     return <DashboardDiagramTableLoading />;
   }
 
-  if (diagrams.length === 0) {
+  if (visibleDiagrams.length === 0) {
     return <DashboardDiagramTableEmptyState />;
   }
 
   return (
-    <DashboardDiagramTable
-      diagrams={diagrams}
-      selectedDiagramId={selectedDiagramId}
-      onSelectDiagram={(diagram) => setSelectedDiagramId(diagram.id)}
-    />
+    <div className="flex flex-col gap-5">
+      <DashboardDiagramTable
+        diagrams={visibleDiagrams}
+        selectedDiagramId={selectedDiagram?.id ?? null}
+        onSelectDiagram={(diagram) => setSelectedDiagramId(diagram.id)}
+        onEditDiagram={(diagram) => router.push(`/?diagramId=${encodeURIComponent(diagram.id)}`)}
+        onDeleteDiagram={handleOpenDeleteModal}
+      />
+      <DashboardDiagramDetail diagram={selectedDiagram} />
+      {pendingDeleteDiagram ? (
+        <DashboardDeleteConfirmModal
+          diagramName={pendingDeleteDiagram.title || pendingDeleteDiagram.name || 'Untitled diagram'}
+          error={deleteError}
+          isPending={isDeletePending}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          returnFocusElement={deleteTriggerButtonRef.current}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -82,15 +152,15 @@ export function DashboardDiagramTable({
     <section className="card-elevated overflow-hidden" aria-labelledby="diagram-table-title">
       <DashboardDiagramTableHeader diagramCount={diagrams.length} />
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left" data-testid="diagram-table">
+      <div className="max-w-full overflow-x-auto overscroll-x-contain">
+        <table className="w-full min-w-[64rem] table-fixed text-left" data-testid="diagram-table">
           <thead className="border-y border-border bg-surface-alt text-xs uppercase tracking-wide text-text-muted">
             <tr>
-              <th scope="col" className="px-5 py-3 font-semibold">Name</th>
-              <th scope="col" className="px-5 py-3 font-semibold">Type</th>
-              <th scope="col" className="px-5 py-3 font-semibold">Updated</th>
-              <th scope="col" className="px-5 py-3 font-semibold">Created</th>
-              <th scope="col" className="px-5 py-3 text-right font-semibold">Actions</th>
+              <th scope="col" className="w-56 px-3 py-3 font-semibold sm:px-5">Name</th>
+              <th scope="col" className="w-40 px-3 py-3 font-semibold sm:px-5">Type</th>
+              <th scope="col" className="w-48 px-3 py-3 font-semibold sm:px-5">Updated</th>
+              <th scope="col" className="w-48 px-3 py-3 font-semibold sm:px-5">Created</th>
+              <th scope="col" className="w-64 px-3 py-3 text-right font-semibold sm:px-5">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border bg-surface">
@@ -102,12 +172,15 @@ export function DashboardDiagramTable({
               return (
                 <tr
                   key={diagram.id}
-                  className={`transition-colors ${isSelected ? 'bg-accent-muted/60' : 'hover:bg-surface-alt'}`}
+                  className={`cursor-pointer transition-colors focus-within:bg-accent-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring ${isSelected ? 'bg-accent-muted/60' : 'hover:bg-surface-alt'}`}
                   data-testid="diagram-row"
                   data-diagram-id={diagram.id}
                   aria-selected={isSelected}
+                  tabIndex={0}
+                  onClick={() => onSelectDiagram(diagram)}
+                  onKeyDown={(event) => handleRowKeyDown(event, () => onSelectDiagram(diagram))}
                 >
-                  <td className="max-w-xs px-5 py-4">
+                  <td className="max-w-xs px-3 py-4 sm:px-5">
                     <div className="flex min-w-0 flex-col gap-1">
                       <span className="truncate text-sm font-semibold text-text-primary" title={displayName}>
                         {displayName}
@@ -117,18 +190,21 @@ export function DashboardDiagramTable({
                       </span>
                     </div>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-3 py-4 sm:px-5">
                     <span className="badge-accent whitespace-nowrap">{diagramTypeLabel}</span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-text-secondary">{formatDiagramTimestamp(diagram.updatedAt)}</td>
-                  <td className="px-5 py-4 text-sm text-text-secondary">{formatDiagramTimestamp(diagram.createdAt)}</td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="whitespace-normal break-words px-3 py-4 text-sm leading-5 text-text-secondary sm:px-5">{formatDiagramTimestamp(diagram.updatedAt)}</td>
+                  <td className="whitespace-normal break-words px-3 py-4 text-sm leading-5 text-text-secondary sm:px-5">{formatDiagramTimestamp(diagram.createdAt)}</td>
+                  <td className="px-3 py-4 sm:px-5">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                       {isSelected ? <span className="badge">Selected</span> : null}
                       <button
                         type="button"
                         className="btn-secondary px-3 py-1.5 text-xs"
-                        onClick={() => onSelectDiagram(diagram)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onSelectDiagram(diagram);
+                        }}
                         aria-label={`View diagram: ${displayName}`}
                         aria-pressed={isSelected}
                         data-testid="view-diagram-button"
@@ -138,7 +214,10 @@ export function DashboardDiagramTable({
                       <button
                         type="button"
                         className="btn-secondary px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={onEditDiagram ? () => onEditDiagram(diagram) : undefined}
+                        onClick={onEditDiagram ? (event) => {
+                          event.stopPropagation();
+                          onEditDiagram(diagram);
+                        } : stopRowSelection}
                         disabled={!onEditDiagram}
                         aria-label={`Edit diagram: ${displayName}`}
                         data-testid="edit-diagram-button"
@@ -148,7 +227,10 @@ export function DashboardDiagramTable({
                       <button
                         type="button"
                         className="btn-danger px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={onDeleteDiagram ? () => onDeleteDiagram(diagram) : undefined}
+                        onClick={onDeleteDiagram ? (event) => {
+                          event.stopPropagation();
+                          onDeleteDiagram(diagram, event.currentTarget);
+                        } : stopRowSelection}
                         disabled={!onDeleteDiagram}
                         aria-label={`Delete diagram: ${displayName}`}
                         data-testid="delete-diagram-button"
@@ -167,6 +249,18 @@ export function DashboardDiagramTable({
   );
 }
 
+function handleRowKeyDown(event: KeyboardEvent<HTMLTableRowElement>, onSelect: () => void) {
+  if (event.target !== event.currentTarget) return;
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+
+  event.preventDefault();
+  onSelect();
+}
+
+function stopRowSelection(event: MouseEvent<HTMLButtonElement>) {
+  event.stopPropagation();
+}
+
 function DashboardDiagramTableHeader({ diagramCount }: { diagramCount: number }) {
   return (
     <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -176,7 +270,7 @@ function DashboardDiagramTableHeader({ diagramCount }: { diagramCount: number })
           Diagram library
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
-          Browse saved diagrams, select one locally for review, and keep edit/delete actions staged for the next dashboard tasks.
+          Browse saved diagrams, select one locally for read-only review, and open the full editor when changes are needed.
         </p>
       </div>
       <span className="badge flex-none self-start sm:self-center">
@@ -239,7 +333,7 @@ function DashboardDiagramTableEmptyState() {
               </li>
               <li className="flex gap-3">
                 <span className="badge flex-none">2</span>
-                <span>Diagram type and action placeholders ready for future edit and delete flows.</span>
+                <span>Diagram type plus view, edit, and permanent delete actions for each saved row.</span>
               </li>
             </ul>
           </div>
@@ -264,20 +358,4 @@ function DashboardDiagramTableError() {
       </Link>
     </section>
   );
-}
-
-export function formatDiagramTimestamp(timestamp: number) {
-  const date = new Date(timestamp);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Unknown';
-  }
-
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const hour = String(date.getUTCHours()).padStart(2, '0');
-  const minute = String(date.getUTCMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hour}:${minute} UTC`;
 }

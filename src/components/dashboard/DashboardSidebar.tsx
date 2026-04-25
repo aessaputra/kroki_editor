@@ -9,7 +9,7 @@ interface DashboardSidebarProps {
 
 const navigationItems = [
   {
-    label: 'Editor',
+    label: 'Open editor',
     href: '/',
     description: 'Create and preview diagrams',
     current: false,
@@ -18,7 +18,7 @@ const navigationItems = [
     ),
   },
   {
-    label: 'Diagrams',
+    label: 'Diagram library',
     href: '/dashboard',
     description: 'Dashboard overview',
     current: true,
@@ -74,6 +74,8 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                   href={item.href}
                   onClick={onClose}
                   aria-current={item.current ? 'page' : undefined}
+                  aria-label={item.current ? 'Current page: diagram library' : 'Open editor'}
+                  data-testid={item.current ? 'dashboard-library-navigation-link' : 'dashboard-sidebar-editor-link'}
                   className={`group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-focus-ring ${
                     item.current
                       ? 'border-accent bg-accent-muted text-accent shadow-sm'

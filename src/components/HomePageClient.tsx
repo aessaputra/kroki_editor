@@ -304,7 +304,7 @@ export function HomePageClient() {
           </div>
 
           {/* Controls - responsive layout */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5 sm:gap-3">
             <button
               type="button"
               onClick={() => void handleSaveDiagram()}
@@ -323,6 +323,13 @@ export function HomePageClient() {
                 <span className="hidden sm:inline-flex badge-accent">
                   Signed in
                 </span>
+                <Link
+                  href="/dashboard"
+                  className="btn-secondary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
+                  data-testid="dashboard-navigation-link"
+                >
+                  Dashboard
+                </Link>
                 <button
                   type="button"
                   onClick={() => void handleLogout()}

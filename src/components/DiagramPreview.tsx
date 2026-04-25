@@ -21,12 +21,14 @@ interface DiagramPreviewProps {
     diagramType?: string;
     /** Current output format for download extension */
     outputFormat?: OutputFormat;
+    /** Optional test id for the rendered error state */
+    errorTestId?: string;
 }
 
 /**
  * Preview component for rendered diagrams
  */
-export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'diagram', outputFormat = 'svg' }: DiagramPreviewProps) {
+export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'diagram', outputFormat = 'svg', errorTestId }: DiagramPreviewProps) {
     const [loadedUrl, setLoadedUrl] = useState('');
     const [errorUrl, setErrorUrl] = useState('');
     const [showUrlCopied, setShowUrlCopied] = useState(false);
@@ -108,7 +110,7 @@ export function DiagramPreview({ imageUrl, isUpdating = false, diagramType = 'di
     // Error state
     if (hasError) {
         return (
-            <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-950">
+            <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-950" data-testid={errorTestId}>
                 <div className="text-center text-red-600 dark:text-red-400 p-8">
                     <svg
                         className="w-16 h-16 mx-auto mb-4"

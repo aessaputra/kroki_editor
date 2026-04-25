@@ -1,20 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useConvexAuth } from 'convex/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type AuthFlow = 'signIn' | 'signUp';
 
+function getSafeReturnTo(nextValue: string | null): string {
+    const next = nextValue?.trim() || '/';
+
+    if (!/^\/(?!\/)/.test(next)) {
+        return '/';
+    }
+
+    try {
+        const resolved = new URL(next, window.location.origin);
+        return resolved.origin === window.location.origin ? `${resolved.pathname}${resolved.search}${resolved.hash}` : '/';
+    } catch {
+        return '/';
+    }
+}
+
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { isAuthenticated, isLoading } = useConvexAuth();
     const { signIn, signOut } = useAuthActions();
     const [flow, setFlow] = useState<AuthFlow>('signIn');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const returnTo = useMemo(() => {
+        return getSafeReturnTo(searchParams.get('next'));
+    }, [searchParams]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -25,7 +44,7 @@ export default function LoginPage() {
             const formData = new FormData(event.currentTarget);
             formData.set('flow', flow);
             await signIn('password', formData);
-            router.push('/');
+            router.push(returnTo);
         } catch (authError) {
             setError(authError instanceof Error ? authError.message : 'Unable to continue. Check your email and password.');
         } finally {
@@ -71,11 +90,11 @@ export default function LoginPage() {
                     ) : isAuthenticated ? (
                         <div className="space-y-4 text-center" data-testid="authenticated-account-state">
                             <div className="rounded-lg bg-surface-alt px-4 py-3 text-sm font-medium text-text-primary">
-                                You are signed in and can return to the editor.
+                                You are signed in and can continue.
                             </div>
                             <div className="flex flex-col gap-3 sm:flex-row">
-                                <Link href="/" className="btn-primary flex-1">
-                                    Open editor
+                                <Link href={returnTo} className="btn-primary flex-1">
+                                    {returnTo === '/' ? 'Open editor' : returnTo === '/dashboard' ? 'Continue to dashboard' : 'Continue'}
                                 </Link>
                                 <button
                                     type="button"

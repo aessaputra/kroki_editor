@@ -8,3 +8,7 @@
 - `npm run lint` still fails in pre-existing files outside this task scope (`src/components/AIGenerateModal.tsx`, `src/components/DiagramPreview.tsx`, `src/hooks/useDiagramEditor.ts`, and others); foundation changes did not introduce those errors.
 - Convex MCP startup with `npx -y convex@latest mcp start --project-dir /home/coder/dev/kroki_editor` exited 0 under a TTY wrapper, but did not print a deployment banner; later tasks should re-check project linkage if needed.
 - The dependency install path is currently sensitive to the existing `nodemailer@7` vs `@auth/core@0.37.0` peer range and therefore used `--legacy-peer-deps`.
+
+## 2026-04-25 Task: ai-owner-removal
+- `npm run lint` still fails due to pre-existing React hook rule violations in `src/components/DiagramPreview.tsx` and `src/hooks/useDiagramEditor.ts`; this cleanup did not add new lint errors.
+- `package-lock.json` still contains transitive `jose` and `nodemailer` entries through `@auth/core`, which is expected and should not be stripped in this task.

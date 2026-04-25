@@ -1,0 +1,20 @@
+Task 4 evidence: owner auth subsystem removed.
+
+Removed files:
+- src/app/api/auth/owner/route.ts
+- src/app/api/auth/verify-otp/route.ts
+- src/app/owner/page.tsx
+- src/hooks/useOwnerAuth.ts
+- src/proxy.ts
+
+Updated files:
+- src/app/page.tsx
+- src/components/index.ts
+- package.json
+- package-lock.json (via npm uninstall)
+
+Verification:
+- npm run type-check ✅
+- npm run test -- --passWithNoTests ✅
+- npm run lint ⚠️ pre-existing unrelated errors remain in src/components/DiagramPreview.tsx and src/hooks/useDiagramEditor.ts
+- Residue scan: no source references to owner auth env/cookie/JWT patterns in src files

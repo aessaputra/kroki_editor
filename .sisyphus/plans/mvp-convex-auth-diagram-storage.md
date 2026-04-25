@@ -273,7 +273,7 @@ Wave 3: Task 5 diagram persistence hook/service, Task 6 main UI/history refactor
 
   **Commit**: YES | Message: `feat(diagrams): add owned convex diagram functions` | Files: `convex/schema.ts`, `convex/diagrams.ts`, Convex generated files if produced
 
-- [ ] 4. Remove AnythingLLM AI and Owner OTP/JWT Subsystems
+- [x] 4. Remove AnythingLLM AI and Owner OTP/JWT Subsystems
 
   **What to do**: Delete AI API routes, AI modal/button components, AI exports/imports/usages, owner auth routes, owner login page, owner auth hook, and AI route proxy. Remove AnythingLLM env references and owner SMTP/JWT env references from examples/docs/config. Remove `lottie-react`, `nodemailer`, `@types/nodemailer`, and `jose` from package dependencies after all references are gone. Keep Kroki rendering intact.
   **Must NOT do**: Do not leave hidden AI buttons, disabled AI menu items, dead API routes returning 410, or owner route compatibility. Requirement is clean removal.

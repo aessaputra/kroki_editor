@@ -14,3 +14,8 @@
 ## 2026-04-25 Task: foundation-followup
 - `.env.local.example` needed a `.gitignore` exception (`!.env.local.example`) so the example file stays trackable while other env files remain ignored.
 - Secret scans should explicitly call out empty placeholder variables like `E2E_TEST_PASSWORD=` so they are not mistaken for leaked secrets.
+
+## 2026-04-25 Task: ai-owner-removal
+- Removing the AI/owner subsystems left the editor shell intact; the only remaining `jose`/`nodemailer` mentions are transitive in `package-lock.json` via `@auth/core`.
+- `npm uninstall lottie-react nodemailer @types/nodemailer jose` successfully rewrote `package-lock.json` and removed the direct runtime dependencies from `package.json`.
+- `npm run type-check` and `npm run test -- --passWithNoTests` passed after the cleanup.

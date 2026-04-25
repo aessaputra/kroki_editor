@@ -1,0 +1,20 @@
+Task 4 evidence: AI subsystem removed.
+
+Removed files:
+- src/app/api/ai/generate/route.ts
+- src/app/api/ai/fix/route.ts
+- src/app/api/ai/revise/route.ts
+- src/components/AIGenerateButton.tsx
+- src/components/AIGenerateModal.tsx
+
+Updated files:
+- src/app/page.tsx
+- src/components/index.ts
+- package.json
+- package-lock.json (via npm uninstall)
+
+Verification:
+- npm run type-check ✅
+- npm run test -- --passWithNoTests ✅
+- npm run lint ⚠️ pre-existing unrelated errors remain in src/components/DiagramPreview.tsx and src/hooks/useDiagramEditor.ts
+- Residue scan: no source references to AIGenerate/useOwnerAuth//api/ai/AnythingLLM in src files

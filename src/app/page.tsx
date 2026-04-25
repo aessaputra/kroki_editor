@@ -19,10 +19,7 @@ import {
   FormatSelector,
   SplitPane,
   DiagramHistory,
-  AIGenerateButton,
-  AIGenerateModal,
 } from '@/components';
-import { useOwnerAuth } from '@/hooks/useOwnerAuth';
 import type { SavedDiagram } from '@/types';
 
 /**
@@ -31,12 +28,6 @@ import type { SavedDiagram } from '@/types';
 export default function HomePage() {
   // History sidebar state
   const [historyOpen, setHistoryOpen] = useState(false);
-
-  // AI modal state
-  const [aiModalOpen, setAiModalOpen] = useState(false);
-
-  // Owner authentication for AI features
-  const { isOwner } = useOwnerAuth();
 
   // Use the diagram editor hook for all state management
   const {
@@ -228,21 +219,6 @@ export default function HomePage() {
         isOpen={historyOpen}
         onClose={() => setHistoryOpen(false)}
         onLoad={handleLoadDiagram}
-      />
-
-      {/* AI Generate Button (Owner Only) */}
-      <AIGenerateButton
-        isOwner={isOwner}
-        onClick={() => setAiModalOpen(true)}
-      />
-
-      {/* AI Generate Modal */}
-      <AIGenerateModal
-        isOpen={aiModalOpen}
-        onClose={() => setAiModalOpen(false)}
-        diagramType={diagramType}
-        currentCode={source}
-        onGenerate={setSource}
       />
     </main>
   );

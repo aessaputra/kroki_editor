@@ -8,13 +8,12 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useAuthActions } from '@convex-dev/auth/react';
 import { useConvexAuth } from 'convex/react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDiagramEditor } from '@/hooks/useDiagramEditor';
-import { makeDefaultDiagramTitle, useSavedDiagrams } from '@/hooks/useSavedDiagrams';
+import { useSavedDiagrams } from '@/hooks/useSavedDiagrams';
 import {
   DiagramEditor,
   DiagramPreview,
@@ -70,12 +69,9 @@ export function HomePageClient() {
   const [currentSavedDiagramId, setCurrentSavedDiagramId] = useState<string | null>(null);
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState<DiagramSnapshot | null>(null);
   const [hasDraftChanges, setHasDraftChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [diagramLoadState, setDiagramLoadState] = useState<string | null>(null);
   const loadedDiagramIdRef = useRef<string | null>(null);
   const { isAuthenticated, isLoading: authIsLoading } = useConvexAuth();
-  const { signOut } = useAuthActions();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const diagramId = searchParams.get('diagramId')?.trim() ?? '';
 
@@ -95,7 +91,7 @@ export function HomePageClient() {
     supportedFormats,
   } = useDiagramEditor('plantuml');
 
-  const { saveCurrentDiagram, loadDiagram } = useSavedDiagrams();
+  const { loadDiagram } = useSavedDiagrams();
 
   const currentSnapshot = useMemo(() => createDiagramSnapshot({
     source,
@@ -134,6 +130,10 @@ export function HomePageClient() {
 
   // Keyboard shortcuts
   useEffect(() => {
+    if (authIsLoading || !isAuthenticated) {
+      return;
+    }
+
     const handleKeyPress = (e: KeyboardEvent) => {
       // Ctrl/Cmd + H to toggle My Diagrams
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
@@ -144,56 +144,17 @@ export function HomePageClient() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  }, [authIsLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!authIsLoading && !isAuthenticated) {
-      setCurrentSavedDiagramId(null);
-      setLastSavedSnapshot(null);
-      setMyDiagramsOpen(false);
+      queueMicrotask(() => {
+        setCurrentSavedDiagramId(null);
+        setLastSavedSnapshot(null);
+        setMyDiagramsOpen(false);
+      });
     }
   }, [authIsLoading, isAuthenticated]);
-
-  // Handle manual save to Convex-backed My Diagrams
-  const handleSaveDiagram = useCallback(async () => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-
-    if (!source.trim()) {
-      toast.error('Add diagram source before saving');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const saved = await saveCurrentDiagram({
-        title: currentSavedDiagramId ? undefined : makeDefaultDiagramTitle(diagramType),
-        source,
-        diagramType,
-        outputFormat,
-        options,
-      }, currentSavedDiagramId);
-      setCurrentSavedDiagramId(saved.id);
-      setLastSavedSnapshot(createDiagramSnapshot(saved));
-      setHasDraftChanges(false);
-      toast.success(currentSavedDiagramId ? 'Diagram updated' : 'Diagram saved');
-    } catch (error) {
-      console.error('Failed to save diagram:', error);
-      toast.error('Failed to save diagram');
-    } finally {
-      setIsSaving(false);
-    }
-  }, [currentSavedDiagramId, diagramType, isAuthenticated, options, outputFormat, router, saveCurrentDiagram, source]);
-
-  const handleLogout = useCallback(async () => {
-    setCurrentSavedDiagramId(null);
-    setLastSavedSnapshot(null);
-    setHasDraftChanges(source.trim().length > 0);
-    setMyDiagramsOpen(false);
-    await signOut();
-  }, [signOut, source]);
 
   const handleLoadDiagram = useCallback((diagram: SavedDiagram) => {
     if (hasUnsavedChanges && currentSavedDiagramId !== diagram.id) {
@@ -225,7 +186,9 @@ export function HomePageClient() {
   useEffect(() => {
     if (!diagramId) {
       loadedDiagramIdRef.current = null;
-      setDiagramLoadState(null);
+      queueMicrotask(() => {
+        setDiagramLoadState(null);
+      });
       return;
     }
 
@@ -234,12 +197,16 @@ export function HomePageClient() {
     }
 
     if (authIsLoading) {
-      setDiagramLoadState(getDiagramLoadMessage(diagramId, 'checking account access…'));
+      queueMicrotask(() => {
+        setDiagramLoadState(getDiagramLoadMessage(diagramId, 'checking account access…'));
+      });
       return;
     }
 
     if (!isAuthenticated) {
-      setDiagramLoadState(getDiagramLoadMessage(diagramId, 'sign in to open saved diagrams'));
+      queueMicrotask(() => {
+        setDiagramLoadState(getDiagramLoadMessage(diagramId, 'sign in to open saved diagrams'));
+      });
       return;
     }
 
@@ -305,17 +272,8 @@ export function HomePageClient() {
 
           {/* Controls - responsive layout */}
           <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => void handleSaveDiagram()}
-              disabled={isSaving || authIsLoading}
-              className="btn-primary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-              data-testid="manual-save-button"
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </button>
             {authIsLoading ? (
-              <span className="hidden sm:inline-flex badge" data-testid="auth-loading-state">
+              <span className="hidden sm:inline-flex badge" role="status" data-testid="auth-loading-state">
                 Checking account...
               </span>
             ) : isAuthenticated ? (
@@ -325,27 +283,29 @@ export function HomePageClient() {
                 </span>
                 <Link
                   href="/dashboard"
-                  className="btn-secondary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
+                  className="btn-secondary min-h-[44px] px-3 py-2 text-xs sm:px-4 sm:text-sm"
                   data-testid="dashboard-navigation-link"
                 >
                   Dashboard
                 </Link>
                 <button
                   type="button"
-                  onClick={() => void handleLogout()}
-                  className="btn-secondary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
-                  data-testid="header-logout-button"
+                  onClick={() => setMyDiagramsOpen(true)}
+                  className="btn-secondary min-h-[44px] px-3 py-2 text-xs sm:px-4 sm:text-sm"
+                  aria-label="Open My Diagrams"
+                  title="My Diagrams"
+                  data-testid="my-diagrams-open-button"
                 >
-                  Log out
+                  My Diagrams
                 </button>
               </div>
             ) : (
               <Link
-                href="/login"
-                className="btn-primary min-h-[36px] px-3 py-1.5 text-xs sm:min-h-[40px] sm:px-4 sm:py-2 sm:text-sm"
-                data-testid="login-to-save-link"
+                href="/register"
+                className="btn-primary min-h-[44px] px-3 py-2 text-sm sm:px-4"
+                data-testid="register-navigation-link"
               >
-                Login to save
+                Register
               </Link>
             )}
               <FormatSelector
@@ -357,19 +317,6 @@ export function HomePageClient() {
                 value={diagramType}
                 onChange={handleDiagramTypeChange}
               />
-            {/* My Diagrams button - hidden on mobile, shown on md+ */}
-            <button
-              onClick={() => setMyDiagramsOpen(true)}
-              className="hidden md:flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="Open My Diagrams (Ctrl+H)"
-              title="My Diagrams (Ctrl+H)"
-              data-testid="my-diagrams-open-button"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4m4 4h6" />
-              </svg>
-              <span>My Diagrams</span>
-            </button>
           </div>
         </div>
         {diagramLoadState ? (
@@ -385,19 +332,7 @@ export function HomePageClient() {
         <SplitPane
           leftTitle={`${diagramType.charAt(0).toUpperCase() + diagramType.slice(1)} Code`}
           rightTitle="Diagram Preview"
-          leftAction={
-            <button
-              onClick={() => setMyDiagramsOpen(true)}
-              className="md:hidden w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              aria-label="Open My Diagrams"
-              title="My Diagrams"
-              data-testid="my-diagrams-open-button-mobile"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4m4 4h6" />
-              </svg>
-            </button>
-          }
+          leftAction={null}
           left={
             <div className="h-full flex flex-col overflow-hidden">
               <div className="flex-1 min-h-0 overflow-hidden">

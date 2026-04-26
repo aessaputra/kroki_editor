@@ -1,0 +1,9 @@
+Command: npm run test -- tests/unit/authRedirect.test.ts
+Result: unsafe redirect cases passed
+
+Covered rejections:
+- null, empty, whitespace-only
+- https://evil.example
+- //evil.example
+- /login and /register variants
+- backslash and control-character inputs

@@ -248,16 +248,16 @@ export function MyDiagramsSidebar({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white">Login to see My Diagrams</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">Register to use My Diagrams</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Guests can keep editing and previewing. Sign in when you want to save diagrams to your account.
+                                Guests can keep editing and previewing. Registered users can manage saved diagrams from their account.
                             </p>
                             <Link
-                                href="/login"
+                                href="/register"
                                 className="btn-primary mt-5 w-full"
-                                data-testid="my-diagrams-login-link"
+                                data-testid="my-diagrams-register-link"
                             >
-                                Login to save
+                                Register for My Diagrams
                             </Link>
                         </div>
                     )}
@@ -276,7 +276,7 @@ export function MyDiagramsSidebar({
                                 </svg>
                             </div>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">No saved diagrams yet</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Use the manual Save button to add your first diagram.</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Saved diagrams you add to your account will appear here.</p>
                         </div>
                     )}
 

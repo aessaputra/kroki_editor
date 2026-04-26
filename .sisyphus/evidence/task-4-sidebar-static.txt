@@ -1,0 +1,13 @@
+Task 4 sidebar static content check
+Checked: /home/coder/dev/kroki_editor/src/components/DiagramHistory.tsx
+Generated: 2026-04-25T21:50:57.480Z
+
+PASS - DiagramHistory omits "Login to save"
+PASS - DiagramHistory omits "manual Save button"
+PASS - DiagramHistory omits old my-diagrams-login-link test id
+PASS - DiagramHistory includes my-diagrams-register-link test id
+PASS - DiagramHistory includes register href
+PASS - Close button keeps test id
+PASS - Close button keeps accessible label
+
+Required register link snippet present: true

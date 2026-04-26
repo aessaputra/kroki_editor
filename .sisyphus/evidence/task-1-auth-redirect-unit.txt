@@ -1,0 +1,7 @@
+Command: npm run test -- tests/unit/authRedirect.test.ts
+Result: passed
+
+Vitest summary:
+- Test Files: 1 passed
+- Tests: 2 passed
+- Safe path preserved: /dashboard?view=recent#top

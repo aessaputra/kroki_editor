@@ -1,0 +1,160 @@
+
+===== npm run lint =====
+
+> kroki_frontend@0.1.0 lint
+> eslint
+
+
+/home/coder/dev/kroki_editor/convex/_generated/api.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/home/coder/dev/kroki_editor/convex/_generated/dataModel.d.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/home/coder/dev/kroki_editor/convex/_generated/server.d.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/home/coder/dev/kroki_editor/convex/_generated/server.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/home/coder/dev/kroki_editor/src/components/DiagramTypeSelector.tsx
+  36:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/components/FormatSelector.tsx
+  31:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/components/HomePageClient.tsx
+  272:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/coder/dev/kroki_editor/src/types/options.ts
+  121:35  warning  'diagramType' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 8 problems (0 errors, 8 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+
+STATUS: 0
+
+===== npm run type-check =====
+
+> kroki_frontend@0.1.0 type-check
+> tsc --noEmit
+
+STATUS: 0
+
+===== npm run test =====
+
+> kroki_frontend@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.4 /home/coder/dev/kroki_editor
+
+ ✓ tests/unit/dashboardFormat.test.ts (2 tests) 4ms
+ ✓ tests/unit/authRedirect.test.ts (2 tests) 22ms
+ ✓ tests/unit/useSavedDiagrams.test.ts (3 tests) 115ms
+
+ Test Files  3 passed (3)
+      Tests  7 passed (7)
+   Start at  21:58:50
+   Duration  2.88s (transform 247ms, setup 509ms, collect 386ms, tests 141ms, environment 2.61s, prepare 751ms)
+
+STATUS: 0
+
+===== npm run build =====
+
+> kroki_frontend@0.1.0 build
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   ▲ Next.js 16.0.8 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled successfully in 6.0s
+   Running TypeScript ...
+   Collecting page data using 5 workers ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages using 5 workers (0/6) ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages using 5 workers (1/6) 
+   Generating static pages using 5 workers (2/6) 
+   Generating static pages using 5 workers (4/6) 
+ ✓ Generating static pages using 5 workers (6/6) in 912.3ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /dashboard
+├ ƒ /login
+└ ƒ /register
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+STATUS: 0
+
+===== npx playwright test tests/e2e/mvp-smoke.spec.ts tests/e2e/dashboard.spec.ts =====
+
+Running 8 tests using 2 workers
+
+  ✘  1 [chromium] › tests/e2e/dashboard.spec.ts:30:5 › guest dashboard access redirects to login with return intent (1ms)
+  -  2 [chromium] › tests/e2e/dashboard.spec.ts:41:5 › auth routes use route-specific modes, reciprocal links, and safe returns
+  -  3 [chromium] › tests/e2e/dashboard.spec.ts:76:5 › authenticated dashboard shows empty state and editor handoff without manual save CTA
+  -  4 [chromium] › tests/e2e/dashboard.spec.ts:99:5 › fresh dashboard accounts show the empty state
+  ✘  5 [chromium] › tests/e2e/mvp-smoke.spec.ts:12:5 › guest can edit and preview with Register CTA and no save/history controls (5ms)
+  -  6 [chromium] › tests/e2e/mvp-smoke.spec.ts:28:5 › guest mobile editor hides My Diagrams while keeping Register available
+  -  7 [chromium] › tests/e2e/mvp-smoke.spec.ts:41:5 › email signup/login preserves authenticated editor navigation controls
+  -  8 [chromium] › tests/e2e/mvp-smoke.spec.ts:76:5 › /owner is absent and does not expose the removed owner UI
+
+
+  1) [chromium] › tests/e2e/dashboard.spec.ts:30:5 › guest dashboard access redirects to login with return intent 
+
+    Error: Local Convex prerequisite missing: expected NEXT_PUBLIC_CONVEX_URL to point at local Convex, received https://oceanic-mouse-735.eu-west-1.convex.cloud.
+
+       at convexPreflight.ts:22
+
+      20 |     }
+      21 |     if (!convexUrl.startsWith('http://127.0.0.1:') && !convexUrl.startsWith('http://localhost:')) {
+    > 22 |         throw new Error(`Local Convex prerequisite missing: expected NEXT_PUBLIC_CONVEX_URL to point at local Convex, received ${convexUrl}.`);
+         |               ^
+      23 |     }
+      24 |
+      25 |     return convexUrl;
+        at getLocalConvexUrl (/home/coder/dev/kroki_editor/tests/e2e/convexPreflight.ts:22:15)
+        at requireLocalConvex (/home/coder/dev/kroki_editor/tests/e2e/convexPreflight.ts:29:23)
+        at /home/coder/dev/kroki_editor/tests/e2e/dashboard.spec.ts:27:29
+
+    Error Context: test-results/dashboard-guest-dashboard--c4b7d-to-login-with-return-intent-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/mvp-smoke.spec.ts:12:5 › guest can edit and preview with Register CTA and no save/history controls 
+
+    Error: Local Convex prerequisite missing: expected NEXT_PUBLIC_CONVEX_URL to point at local Convex, received https://oceanic-mouse-735.eu-west-1.convex.cloud.
+
+       at convexPreflight.ts:22
+
+      20 |     }
+      21 |     if (!convexUrl.startsWith('http://127.0.0.1:') && !convexUrl.startsWith('http://localhost:')) {
+    > 22 |         throw new Error(`Local Convex prerequisite missing: expected NEXT_PUBLIC_CONVEX_URL to point at local Convex, received ${convexUrl}.`);
+         |               ^
+      23 |     }
+      24 |
+      25 |     return convexUrl;
+        at getLocalConvexUrl (/home/coder/dev/kroki_editor/tests/e2e/convexPreflight.ts:22:15)
+        at requireLocalConvex (/home/coder/dev/kroki_editor/tests/e2e/convexPreflight.ts:29:23)
+        at /home/coder/dev/kroki_editor/tests/e2e/mvp-smoke.spec.ts:9:29
+
+    Error Context: test-results/mvp-smoke-guest-can-edit-a-dd2f4-nd-no-save-history-controls-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/dashboard.spec.ts:30:5 › guest dashboard access redirects to login with return intent 
+    [chromium] › tests/e2e/mvp-smoke.spec.ts:12:5 › guest can edit and preview with Register CTA and no save/history controls 
+  6 did not run
+STATUS: 1

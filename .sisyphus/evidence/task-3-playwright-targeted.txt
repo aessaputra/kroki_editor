@@ -1,0 +1,16 @@
+
+> kroki_frontend@0.1.0 test:e2e
+> playwright test tests/e2e/mvp-smoke.spec.ts tests/e2e/dashboard.spec.ts
+
+[2m[WebServer] [22m [31m[1m⨯[22m[39m Failed to start server
+[2m[WebServer] [22mError: listen EADDRINUSE: address already in use 0.0.0.0:43017
+[2m[WebServer] [22m    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:43017) {
+[2m[WebServer] [22m  code: [32m'EADDRINUSE'[39m,
+[2m[WebServer] [22m  errno: [33m-98[39m,
+[2m[WebServer] [22m  syscall: [32m'listen'[39m,
+[2m[WebServer] [22m  address: [32m'0.0.0.0'[39m,
+[2m[WebServer] [22m  port: [33m43017[39m
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Error: Process from config.webServer was not able to start. Exit code: 1
+

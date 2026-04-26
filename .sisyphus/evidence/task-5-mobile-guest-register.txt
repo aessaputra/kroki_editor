@@ -1,0 +1,14 @@
+Mobile guest Register CTA and authenticated My Diagrams browser QA attempt
+
+Command/tool attempted:
+Playwright MCP browser_resize {"width":390,"height":844}
+
+Result:
+BLOCKED before navigation/browser QA.
+
+Exact blocker:
+Error: server: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+Run "npx playwright install chrome"
+
+Status:
+No browser scenario pass claimed. Targeted Playwright command evidence is recorded separately in task-5-verification-commands.txt and is blocked by the local Convex preflight while NEXT_PUBLIC_CONVEX_URL points at remote Convex.

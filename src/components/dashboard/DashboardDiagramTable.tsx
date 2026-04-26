@@ -317,7 +317,7 @@ function DashboardDiagramTableEmptyState() {
             No saved diagrams yet.
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary sm:text-base">
-            Create a diagram in the editor, use the manual Save button, and it will appear here in your dashboard library.
+            Create diagrams in the editor and saved account diagrams will appear here in your dashboard library.
           </p>
           <Link href="/" className="btn-primary mt-6 w-full sm:w-auto">
             Back to editor

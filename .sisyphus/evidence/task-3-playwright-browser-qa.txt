@@ -1,0 +1,8 @@
+Direct Playwright MCP browser QA attempt for editor CTA behavior:
+
+Command/tool: playwright.browser_navigate to http://127.0.0.1:43017/
+Result: blocked before page load.
+Error: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+Suggested by tool: Run "npx playwright install chrome"
+
+Notes: Targeted `npm run test:e2e -- tests/e2e/mvp-smoke.spec.ts tests/e2e/dashboard.spec.ts` was also attempted and captured separately in task-3-playwright-targeted.txt. That command failed before tests because config.webServer attempted to start npm run dev while 0.0.0.0:43017 was already in use and the Playwright readiness URL remains http://127.0.0.1:3000.

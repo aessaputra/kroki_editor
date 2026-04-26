@@ -6,36 +6,21 @@ const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 function makeCredentials(label: string) {
     return {
         email: `${label}-${runId}@example.test`,
-        password: `Task7-${runId}-Password!`,
+        password: `Task5-${runId}-Password!`,
     };
 }
 
 async function signUpWithPassword(page: Page, email: string, password: string) {
-    await page.goto('/login');
-    await page.getByTestId('auth-flow-toggle').click();
-    await page.getByTestId('email-input').fill(email);
-    await page.getByTestId('password-input').fill(password);
-    await page.getByTestId('auth-submit-button').click();
+    await page.goto('/register');
+    await page.getByLabel('Email').fill(email);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Register' }).click();
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByTestId('dashboard-shell')).toBeVisible();
+
+    await page.goto('/');
     await expect(page.getByTestId('authenticated-header-state')).toBeVisible();
-}
-
-async function signUpAndSaveDiagram(page: Page, label: string) {
-    const { email, password } = makeCredentials(label);
-    await signUpWithPassword(page, email, password);
-
-    const preview = page.locator('iframe[title="Diagram preview"]');
-    await expect(preview).toBeVisible();
-    const previewSrc = await preview.getAttribute('src');
-    if (!previewSrc) {
-        throw new Error('Expected a rendered preview URL before saving the diagram.');
-    }
-
-    await page.getByTestId('manual-save-button').click();
-    await expect(page.getByText('Diagram saved')).toBeVisible();
-
-    return { email, password, previewSrc };
 }
 
 test.beforeAll(async () => {
@@ -53,35 +38,64 @@ test('guest dashboard access redirects to login with return intent', async ({ pa
     expect(currentUrl.searchParams.get('next')).toBe('/dashboard');
 });
 
-test('authenticated dashboard shows a saved row, detail preview, and edit handoff', async ({ page }) => {
-    const { previewSrc } = await signUpAndSaveDiagram(page, 'dashboard-edit');
+test('auth routes use route-specific modes, reciprocal links, and safe returns', async ({ page }) => {
+    const { email, password } = makeCredentials('auth-routes');
+
+    await page.goto('/login');
+    await expect(page.getByTestId('email-password-auth-form')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /login.*diagram dashboard/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Register' })).toHaveAttribute('href', '/register');
+    await expect(page.getByTestId('auth-flow-toggle')).toHaveCount(0);
+
+    await page.goto('/register');
+    await expect(page.getByTestId('email-password-auth-form')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /create.*diagram dashboard account/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Register' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Login' })).toHaveAttribute('href', '/login');
+    await expect(page.getByTestId('auth-flow-toggle')).toHaveCount(0);
+
+    await page.goto('/register?next=https://evil.example');
+    await page.getByLabel('Email').fill(email);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Register' }).click();
+    await expect(page).toHaveURL('/dashboard');
+
+    await page.goto('/login');
+    await expect(page).toHaveURL('/dashboard');
+
+    await page.getByTestId('dashboard-logout-button').click();
+    await expect(page).toHaveURL('/');
+
+    await page.goto('/login?next=/dashboard');
+    await page.getByLabel('Email').fill(email);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(page).toHaveURL('/dashboard');
+});
+
+test('authenticated dashboard shows empty state and editor handoff without manual save CTA', async ({ page }) => {
+    const { email, password } = makeCredentials('dashboard-handoff');
+    await signUpWithPassword(page, email, password);
 
     await page.getByTestId('dashboard-navigation-link').click();
     await expect(page).toHaveURL('/dashboard');
     await expect(page.getByTestId('dashboard-shell')).toBeVisible();
-    await expect(page.getByTestId('diagram-table')).toBeVisible();
+    await expect(page.getByTestId('dashboard-logout-button')).toBeVisible();
+    await expect(page.getByTestId('empty-diagrams-state')).toBeVisible();
 
-    const row = page.getByTestId('diagram-row').first();
-    await expect(row).toBeVisible();
+    await page.getByTestId('dashboard-open-editor-link').click();
+    await expect(page).toHaveURL('/');
+    await expect(page.getByTestId('authenticated-header-state')).toBeVisible();
+    await expect(page.getByTestId('my-diagrams-open-button')).toBeVisible();
+    await expect(page.getByTestId('manual-save-button')).toHaveCount(0);
+    await expect(page.getByTestId('login-to-save-link')).toHaveCount(0);
+    await expect(page.getByTestId('register-navigation-link')).toHaveCount(0);
 
-    const diagramId = await row.getAttribute('data-diagram-id');
-    if (!diagramId) {
-        throw new Error('Expected saved dashboard row to expose a diagram id.');
-    }
-
-    await row.click();
-    await expect(page.getByTestId('diagram-detail')).toBeVisible();
-    await expect(page.getByTestId('diagram-preview')).toBeVisible();
-
-    const detailEditButton = page.getByTestId('diagram-detail').getByTestId('edit-diagram-button');
-    await detailEditButton.click();
-
-    await page.waitForURL((url) => url.pathname === '/' && url.searchParams.get('diagramId') === diagramId);
-    const returnedUrl = new URL(page.url());
-    expect(returnedUrl.pathname).toBe('/');
-    expect(returnedUrl.searchParams.get('diagramId')).toBe(diagramId);
-    await expect(page.getByTestId('diagram-load-state')).toHaveText(new RegExp(`Diagram ${diagramId}: loaded`));
-    await expect(page.locator('iframe[title="Diagram preview"]')).toHaveAttribute('src', previewSrc);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByTestId('my-diagrams-open-button')).toBeVisible();
+    await expect(page.getByTestId('my-diagrams-open-button-mobile')).toHaveCount(0);
+    await expect(page.getByTestId('register-navigation-link')).toHaveCount(0);
 });
 
 test('fresh dashboard accounts show the empty state', async ({ page }) => {
@@ -91,30 +105,5 @@ test('fresh dashboard accounts show the empty state', async ({ page }) => {
     await page.getByTestId('dashboard-navigation-link').click();
     await expect(page).toHaveURL('/dashboard');
     await expect(page.getByTestId('dashboard-shell')).toBeVisible();
-    await expect(page.getByTestId('empty-diagrams-state')).toBeVisible();
-});
-
-test('dashboard delete cancel keeps the row and confirm clears the last saved diagram', async ({ page }) => {
-    await signUpAndSaveDiagram(page, 'dashboard-delete');
-
-    await page.getByTestId('dashboard-navigation-link').click();
-    await expect(page.getByTestId('diagram-table')).toBeVisible();
-
-    const row = page.getByTestId('diagram-row').first();
-    await expect(row).toBeVisible();
-
-    await row.getByTestId('delete-diagram-button').click();
-    await expect(page.getByTestId('confirm-delete-modal')).toBeVisible();
-
-    await page.getByTestId('cancel-delete-button').click();
-    await expect(page.getByTestId('confirm-delete-modal')).toHaveCount(0);
-    await expect(page.getByTestId('diagram-row')).toHaveCount(1);
-
-    await row.getByTestId('delete-diagram-button').click();
-    await expect(page.getByTestId('confirm-delete-modal')).toBeVisible();
-    await page.getByTestId('confirm-delete-button').click();
-
-    await expect(page.getByTestId('confirm-delete-modal')).toHaveCount(0);
-    await expect(page.getByTestId('diagram-row')).toHaveCount(0);
     await expect(page.getByTestId('empty-diagrams-state')).toBeVisible();
 });

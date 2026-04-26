@@ -2,72 +2,77 @@ import { expect, test } from '@playwright/test';
 import { requireLocalConvex } from './convexPreflight';
 
 const uniqueRunId = Date.now();
-const email = process.env.E2E_TEST_EMAIL ?? `task7-${uniqueRunId}@example.test`;
-const password = process.env.E2E_TEST_PASSWORD ?? `Task7-${uniqueRunId}-password!`;
-const renamedTitle = `Task 7 Renamed ${uniqueRunId}`;
+const email = process.env.E2E_TEST_EMAIL ?? `task5-${uniqueRunId}@example.test`;
+const password = process.env.E2E_TEST_PASSWORD ?? `Task5-${uniqueRunId}-password!`;
 
 test.beforeAll(async () => {
     await requireLocalConvex();
 });
 
-test('guest can edit and preview, but Save requires login and creates no guest history', async ({ page }) => {
+test('guest can edit and preview with Register CTA and no save/history controls', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.getByText('Diagram Preview')).toBeVisible();
     await expect(page.locator('iframe[title="Diagram preview"]')).toBeVisible();
-    await expect(page.getByTestId('manual-save-button')).toBeVisible();
-    await expect(page.getByTestId('login-to-save-link')).toBeVisible();
+    const registerLink = page.getByRole('link', { name: 'Register' });
+    await expect(registerLink).toBeVisible();
+    await expect(registerLink).toHaveAttribute('href', '/register');
+    await expect(page.getByTestId('manual-save-button')).toHaveCount(0);
+    await expect(page.getByTestId('login-to-save-link')).toHaveCount(0);
+    await expect(page.getByText('Login to save')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button-mobile')).toHaveCount(0);
     await expect(page.getByText(/Generate with AI|Owner Console|Owner Login/i)).toHaveCount(0);
+});
+
+test('guest mobile editor hides My Diagrams while keeping Register available', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+
+    const registerLink = page.getByRole('link', { name: 'Register' });
+    await expect(registerLink).toBeVisible();
+    await expect(registerLink).toHaveAttribute('href', '/register');
+    await expect(page.getByTestId('manual-save-button')).toHaveCount(0);
+    await expect(page.getByTestId('login-to-save-link')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button-mobile')).toHaveCount(0);
+});
+
+test('email signup/login preserves authenticated editor navigation controls', async ({ page }) => {
+    await page.goto('/register');
+    await page.getByLabel('Email').fill(email);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Register' }).click();
+
+    await expect(page).toHaveURL('/dashboard');
+    await page.goto('/');
+    await expect(page.getByTestId('authenticated-header-state')).toBeVisible();
+    await expect(page.getByTestId('dashboard-navigation-link')).toBeVisible();
+    await expect(page.getByTestId('header-logout-button')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button')).toBeVisible();
+    await expect(page.getByTestId('register-navigation-link')).toHaveCount(0);
+    await expect(page.getByTestId('manual-save-button')).toHaveCount(0);
+    await expect(page.getByTestId('login-to-save-link')).toHaveCount(0);
 
     await page.getByTestId('my-diagrams-open-button').click();
     await expect(page.getByTestId('my-diagrams-sidebar')).toBeVisible();
-    await expect(page.getByTestId('my-diagrams-auth-prompt')).toBeVisible();
-    await expect(page.getByTestId('my-diagram-list-item')).toHaveCount(0);
-    await page.getByTestId('my-diagrams-close-button').click();
-
-    await page.getByTestId('manual-save-button').click();
-    await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByTestId('email-password-auth-form')).toBeVisible();
-});
-
-test('email signup/login can save, list, load, rename, delete, and removes deleted items', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByTestId('auth-flow-toggle').click();
-    await page.getByTestId('email-input').fill(email);
-    await page.getByTestId('password-input').fill(password);
-    await page.getByTestId('auth-submit-button').click();
-
-    await expect(page).toHaveURL('/');
-    await expect(page.getByTestId('authenticated-header-state')).toBeVisible();
-
-    await page.getByTestId('manual-save-button').click();
-    await expect(page.getByText('Diagram saved')).toBeVisible();
-
-    await page.getByTestId('my-diagrams-open-button').click();
-    const savedItem = page.getByTestId('my-diagram-list-item').filter({ hasText: 'plantuml diagram' }).first();
-    await expect(savedItem).toBeVisible();
-
-    await savedItem.getByTestId('my-diagram-rename-button').click();
-    await page.getByTestId('my-diagram-rename-input').fill(renamedTitle);
-    await page.getByTestId('my-diagram-rename-save-button').click();
-    await expect(page.getByTestId('my-diagram-title').filter({ hasText: renamedTitle })).toBeVisible();
-
-    const renamedItem = page.getByTestId('my-diagram-list-item').filter({ hasText: renamedTitle }).first();
-    await renamedItem.getByTestId('my-diagram-load-button').click();
-    await expect(page.getByTestId('my-diagrams-sidebar')).toHaveCount(0);
-
-    await page.getByTestId('my-diagrams-open-button').click();
-    const loadedItem = page.getByTestId('my-diagram-list-item').filter({ hasText: renamedTitle }).first();
-    await expect(loadedItem.getByTestId('current-saved-diagram-indicator')).toBeVisible();
-
-    page.once('dialog', (dialog) => dialog.accept());
-    await loadedItem.getByTestId('my-diagram-delete-button').click();
-    await expect(page.getByText('Diagram deleted')).toBeVisible();
-    await expect(page.getByTestId('my-diagram-title').filter({ hasText: renamedTitle })).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-auth-prompt')).toHaveCount(0);
 
     await page.getByTestId('my-diagrams-close-button').click();
-    await page.getByTestId('header-logout-button').click();
-    await expect(page.getByTestId('login-to-save-link')).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByTestId('register-navigation-link')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button')).toBeVisible();
+    await expect(page.getByTestId('my-diagrams-open-button-mobile')).toHaveCount(0);
+    await page.getByTestId('my-diagrams-open-button').click();
+    await expect(page.getByTestId('my-diagrams-sidebar')).toBeVisible();
+    await expect(page.getByTestId('my-diagrams-auth-prompt')).toHaveCount(0);
+    await page.getByTestId('my-diagrams-close-button').click();
+    await page.getByTestId('dashboard-navigation-link').click();
+    await expect(page.getByTestId('dashboard-logout-button')).toBeVisible();
+    await page.getByTestId('dashboard-logout-button').click();
+    await expect(page.getByRole('link', { name: 'Register' })).toBeVisible();
+    await expect(page.getByTestId('my-diagrams-open-button')).toHaveCount(0);
+    await expect(page.getByTestId('my-diagrams-open-button-mobile')).toHaveCount(0);
 });
 
 test('/owner is absent and does not expose the removed owner UI', async ({ page }) => {

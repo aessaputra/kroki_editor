@@ -1,0 +1,29 @@
+Task 2 auth-route refactor verification summary
+
+Commands run:
+- npm run type-check
+  Result: PASS
+
+- npm run lint
+  Result: PASS with 0 errors and 8 pre-existing warnings in generated Convex files and unrelated existing components/types.
+
+- npm run build
+  Result: PASS. Next.js build included dynamic routes /, /dashboard, /login, and /register.
+
+- npm run test:e2e -- tests/e2e/dashboard.spec.ts -g "auth routes|guest dashboard"
+  Result: BLOCKED before tests. Configured webServer ran `npm run dev`, but port 43017 was already in use while playwright.config.ts still points baseURL/webServer URL at 3000.
+
+- npx playwright test dashboard.spec.ts -g "auth routes|guest dashboard" --config ".sisyphus/evidence/task-2-playwright-existing-server.config.ts"
+  Result: BLOCKED by local Convex preflight. The existing environment has NEXT_PUBLIC_CONVEX_URL=https://oceanic-mouse-735.eu-west-1.convex.cloud, but tests require a local http://127.0.0.1 or http://localhost Convex URL.
+
+Diagnostics:
+- lsp_diagnostics found no diagnostics in:
+  - src/components/auth/PasswordAuthPage.tsx
+  - src/app/login/page.tsx
+  - src/app/register/page.tsx
+  - tests/e2e/mvp-smoke.spec.ts
+  - tests/e2e/dashboard.spec.ts
+
+Evidence:
+- Raw Playwright output: .sisyphus/evidence/task-2-playwright-auth-route-qa.txt
+- Temporary no-webServer Playwright config used for existing-server attempt: .sisyphus/evidence/task-2-playwright-existing-server.config.ts

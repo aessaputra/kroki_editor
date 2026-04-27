@@ -7,8 +7,15 @@ import type { NextFetchEvent, NextRequest } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 
+function canUseServerAuthCookies(request: NextRequest): boolean {
+    const host = request.headers.get('host') ?? '';
+    const protocol = request.headers.get('x-forwarded-proto') ?? request.nextUrl.protocol.replace(':', '');
+
+    return protocol === 'https' || /^(localhost|127\.0\.0\.1):\d+$/.test(host);
+}
+
 const convexAuthProxy = convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-    if (!isProtectedRoute(request) || await convexAuth.isAuthenticated()) {
+    if (!isProtectedRoute(request) || !canUseServerAuthCookies(request) || await convexAuth.isAuthenticated()) {
         return;
     }
 
